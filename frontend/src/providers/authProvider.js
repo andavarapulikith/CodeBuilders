@@ -15,16 +15,21 @@ const AuthProvider = ({ children }) => {
       const user = JSON.parse(userData);
       
       setAuthData({ user, token });
-      axios.defaults.headers.common['Authorization'] = token; // Removed Bearer prefix
+      axios.defaults.headers.common['Authorization'] = token;
     }
   }, []);
 
   const login = async (user, token) => {
-    Cookies.set('token', token, { expires: 7 }); // Store token in cookie for 7 days
-    Cookies.set('user', JSON.stringify(user), { expires: 7 });
+   
+    const expiration = new Date();
+    expiration.setTime(expiration.getTime() + (24 * 60 * 60 * 1000)); 
+  
+    Cookies.set('token', token, { expires: expiration });
+    Cookies.set('user', JSON.stringify(user), { expires: expiration });
     setAuthData({ user, token });
-    axios.defaults.headers.common['Authorization'] = token; // Removed Bearer prefix
+    axios.defaults.headers.common['Authorization'] = token; 
   };
+  
 
   const logout = () => {
     Cookies.remove('token');

@@ -8,7 +8,7 @@ const IDE = () => {
   const [language, setLanguage] = useState('cpp'); // Default language
   var isloggedin=false;
   const authData=useContext(AuthContext);
-  if(authData)
+  if(authData.authData)
     isloggedin=true;
 
   const handleLanguageChange = (lang) => {

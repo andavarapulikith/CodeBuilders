@@ -1,36 +1,48 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom"; // Import Link
+import { Link } from "react-router-dom"; 
 import { AuthContext } from "../providers/authProvider";
 import { useContext } from "react";
 const AllProblemsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [problemsPerPage] = useState(6); // Number of problems per page
-  const [problems, setProblems] = useState([]); // State to store problems
+  const [problemsPerPage] = useState(6); 
+  const [problems, setProblems] = useState([]); 
+  const [solvedProblems, setSolvedProblems] = useState([]);
   var isloggedin=false;
   const authData=useContext(AuthContext);
-  if(authData)
+  console.log(authData)
+  if(authData.authData)
     isloggedin=true;
-  // Fetch problems from backend
+  
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/coding/allproblems"); // Update with your backend endpoint
-        setProblems(response.data.questions); // Ensure you are setting the correct data
+        console.log("fetching problems")
+        let userid;
+        if(authData.authData)
+          userid=authData.authData.user._id;
+        console.log(userid)
+         if(userid !== undefined){
+        const response = await axios.get("http://localhost:5000/coding/allproblems/"+userid); 
+        setProblems(response.data.questions); 
+        setSolvedProblems(response.data.solvedQuestions);
+        // console.log(response.data.solvedQuestions)
+         }
       } catch (error) {
         console.error("Error fetching problems:", error);
-      }
+      
+    }
     };
 
     fetchProblems();
-  }, []);
+  }, [authData.authData]);
 
-  // Get current problems
+
   const indexOfLastProblem = currentPage * problemsPerPage;
   const indexOfFirstProblem = indexOfLastProblem - problemsPerPage;
   const currentProblems = problems.slice(indexOfFirstProblem, indexOfLastProblem);
 
-  // Change page
+
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
@@ -97,21 +109,22 @@ const AllProblemsPage = () => {
                       {problem.difficulty}
                     </div>
                     <div className="bg-blue-100 p-2 rounded-lg">
-                      {problem.submissions}+ submissions
+                      {problem.submissionsCount} submissions
                     </div>
                   </div>
                 </div>
                 {/* Right part - Company Tags and Solve Now Button */}
                 <div className="flex items-center">
-                  <div className="flex flex-wrap mr-2">
+                {console.log(problem.companyTags.length)}
+                  {problem.companyTags.length!==0 && <div className="flex flex-wrap mr-2">
                     {problem.companyTags.slice(0, 3).map((company, index) => (
                       <div key={index} className="mr-2 p-2 rounded bg-gray-200 text-gray-800">
-                        {company}
+                        {company.trim().length!=0 && company}
                       </div>
                     ))}
-                  </div>
+                  </div>}
                   <Link to={"/problem/"+problem._id} className="ml-4 px-4 py-2 bg-yellow-600 text-white rounded-lg shadow-lg hover:bg-yellow-700">
-                    Solve Now
+                    {!solvedProblems.some(solvedProblem => solvedProblem === problem._id) ?"Solve Now":"Solved"}
                   </Link>
                 </div>
               </div>

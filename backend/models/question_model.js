@@ -70,8 +70,12 @@ const questionSchema = new mongoose.Schema({
     {
       type: String,
       trim: true,
-    },
+    }
   ],
+  submissionsCount: {
+    type:Number,
+    default:0
+  }
 }, { timestamps: true });
 
 const Question = mongoose.model('Question', questionSchema);

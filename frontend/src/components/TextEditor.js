@@ -10,11 +10,11 @@ const TextEditor = () => {
     const [isloggedin, setIsLoggedIn] = useState(false);
     const authData = useContext(AuthContext);
 
-    useEffect(() => {
-        if (authData) {
+   
+        if (authData.authData) {
             setIsLoggedIn(true);
         }
-    }, [authData]);
+   
 
     const modules = {
         toolbar: [

@@ -10,10 +10,19 @@ window.katex = katex;
 
 const AddProblemPage = () => {
     var isloggedin=false;
+    var user;
     const authData=useContext(AuthContext);
-    if(authData)
-      isloggedin=true;
-  let  user=authData.authData.user
+    if(authData!==null)
+      {
+        isloggedin=true;
+        console.log(authData)
+     
+      }
+     
+    
+
+  
+
   const [problemData, setProblemData] = useState({
     title: '',
     description: '',
@@ -73,8 +82,13 @@ const AddProblemPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(authData.user)
-    problemData.userid=user._id;
+    
+    if(authData.authData!==null)
+      {
+      user=authData.authData.user;
+      problemData.userid=user._id;
+      }
+    
     console.log(problemData)
     try {
       const response = await axios.post('http://localhost:5000/coding/addproblem', problemData);

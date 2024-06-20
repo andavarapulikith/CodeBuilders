@@ -6,7 +6,7 @@ const LeaderboardPage = () => {
   // Dummy data for leaderboard (considering more than 20 users for pagination example)
   var isloggedin=false;
   const authData=useContext(AuthContext);
-  if(authData)
+  if(authData.authData)
     isloggedin=true;
   const allUsers = [
     { rank: 1, name: 'Alice', score: 1500, problemsSolved: 50 },

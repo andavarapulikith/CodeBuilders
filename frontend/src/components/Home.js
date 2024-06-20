@@ -11,10 +11,12 @@ import { useContext } from "react";
 import { Link } from "react-router-dom";
 const Home = () => {
   var isloggedin=false;
+  
   const authData=useContext(AuthContext);
-  if(authData)
+  if(authData.authData != null)
     isloggedin=true;
-
+  
+  console.log(isloggedin)
   return (
     <div>
       {/* Navbar */}

@@ -5,23 +5,79 @@ import { AuthContext } from "../providers/authProvider";
 import Editor from "@monaco-editor/react";
 const SingleProblemPage = () => {
   const [language, setLanguage] = useState("python");
-  const [problem, setProblem] = useState(null); // State to store the problem details
-  const [code, setCode] = useState(""); // State to store the code
-  const { id } = useParams(); // Get the id parameter from the URL
+  const [problem, setProblem] = useState(null);
+  const [code, setCode] = useState("");
+  const { id } = useParams();
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+  const [error,setError]=useState("");
+  const [submittedOutput,setSubmittedOutput]=useState("");
+
   var isloggedin = false;
   const authData = useContext(AuthContext);
-  if (authData) isloggedin = true;
+  if (authData.authData) isloggedin = true;
 
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
   };
+  const runCode = () => {
+    // console.log(code,input);
+    axios
+      .post("http://localhost:5000/coding/runproblem", { code,language, input })
+      .then((res) => {
+        
+        if(res.data.output!==""){
+        setOutput(res.data.output);
+        setError("")
+        }
+        if(res.data.error!=="")
+          {
+          setError(res.data.error)
+          
+          }
 
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+ const onSubmit=()=>{
+    let userId=authData.authData.user._id;
+    console.log(userId)
+    axios.post("http://localhost:5000/coding/submit",{questionId:id,userId,code,language}).then((res)=>{
+      console.log(res.data);
+     if(res.data.error){
+        setError(res.data.error)
+     }
+     else
+     {
+       let results=res.data.results;
+       let flag=0
+       for(let i=0;i<results.length;i++)
+       {
+        // console.log(results[i].verdict)
+         if(results[i].verdict=="Fail")
+         {
+          flag=1
+          setSubmittedOutput("failed in test case "+(i+1))
+           break;
+         }
+       }
+       if(flag==0)
+       setSubmittedOutput("All test cases passed")
+
+     }
+    }).catch((err)=>{
+      console.log(err);
+    })
+  
+ }
   useEffect(() => {
     // Fetch problem details based on the problem ID
     const fetchProblem = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/coding/allproblems/${id}`
+          `http://localhost:5000/coding/getproblem/${id}`
         ); // Update with your backend endpoint
         setProblem(response.data.question);
       } catch (error) {
@@ -79,7 +135,7 @@ const SingleProblemPage = () => {
         </div>
       </nav>
 
-      <div className="w-screen h-screen pt-10 overflow-hidden">
+      <div className="w-screen h-screen  overflow-hidden">
         <div className="flex flex-col md:flex-row h-full">
           {/* Left Section - Problem Description */}
           <div className="w-full md:w-1/2 h-full overflow-auto bg-white p-6">
@@ -192,16 +248,21 @@ const SingleProblemPage = () => {
               />
             </div>
             <div className="flex justify-between">
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700">
+              <button
+                onClick={runCode}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700"
+              >
                 Run
               </button>
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700">
+              <button onClick={onSubmit} className="px-4 py-2  bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700">
                 Submit
               </button>
             </div>
             <div className="mt-4">
               <h3 className="text-xl font-semibold text-white mb-2">Input</h3>
               <textarea
+                onChange={(e) => setInput(e.target.value)}
+                value={input}
                 className="w-full h-20 bg-white text-gray-800 p-4 rounded-lg focus:outline-none"
                 placeholder="Input for your code..."
               ></textarea>
@@ -209,10 +270,13 @@ const SingleProblemPage = () => {
             <div className="mt-4">
               <h3 className="text-xl font-semibold text-white mb-2">Output</h3>
               <textarea
+              value={output}
                 className="w-full h-20 bg-white text-gray-800 p-4 rounded-lg focus:outline-none"
                 placeholder="Output from your code..."
               ></textarea>
             </div>
+            {error && <div className="text-red-500">{error}</div>}
+            {submittedOutput && <div className="text-blue-500 text-lg">{submittedOutput}</div>}
           </div>
         </div>
       </div>
