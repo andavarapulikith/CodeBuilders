@@ -33,7 +33,7 @@ const Home = () => {
             </li>
             <li>
               <Link to={isloggedin?'/allproblems':'/login'} className="hover:text-yellow-300">
-                All problems
+                All Questions
               </Link>
             </li>
             <li>
