@@ -1,4 +1,4 @@
-name: Push Docker Images
+name: Build and Push Docker Images
 
 on:
   push:
@@ -6,25 +6,34 @@ on:
       - main
 
 jobs:
-  push-docker-images:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Updated to use Node.js 20
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3 # Updated to use Node.js 20
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push frontend image
-        run: |
-          docker tag codebuilders-frontend likithandavarapu/codebuilders-frontend:latest
-          docker push likithandavarapu/codebuilders-frontend:latest
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: likithandavarapu/codebuilders-frontend:latest
 
-      - name: Push backend image
-        run: |
-          docker tag codebuilders-backend likithandavarapu/codebuilders-backend:latest
-          docker push likithandavarapu/codebuilders-backend:latest
+      - name: Build and push backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: likithandavarapu/codebuilders-backend:latest
