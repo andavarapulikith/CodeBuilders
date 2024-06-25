@@ -1,0 +1,30 @@
+name: Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  push-docker-images:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push frontend image
+        run: |
+          docker tag codebuilders-frontend likithandavarapu/codebuilders-frontend:latest
+          docker push likithandavarapu/codebuilders-frontend:latest
+
+      - name: Push backend image
+        run: |
+          docker tag codebuilders-backend likithandavarapu/codebuilders-backend:latest
+          docker push likithandavarapu/codebuilders-backend:latest
