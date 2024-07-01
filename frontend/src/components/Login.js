@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../providers/authProvider';
 import { useContext } from 'react';
+import {toast} from 'sonner'
 
 
 function Login() {
@@ -13,6 +14,7 @@ function Login() {
   const [errors, setErrors] = useState({});
   const [serverResponse, setServerResponse] = useState('');
   const { login } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -34,17 +36,37 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
+      setLoading(true);
       try {
         const response = await axios.post('http://localhost:5000/auth/login', { email, password });
+        console.log(response.data);
+        
+        if (response.data.success === false) {
+          setServerResponse('Invalid credentials');
+          toast.error("Invalid credentials");
+          return;
+        }
+        
         const { user, token } = response.data;
+        
         login(user, token);
-        navigate("/allproblems")
+        toast.success('Login successful');
+        navigate("/allproblems");
       } catch (error) {
         console.error('Login error:', error);
-        // Handle error (e.g., show error message)
+        if (error.response && error.response.data && error.response.data.message) {
+          setServerResponse(error.response.data.message);
+          toast.error(error.response.data.message);
+        } else {
+          setServerResponse('An error occurred. Please try again.');
+          toast.error('An error occurred. Please try again.');
+        }
       }
+      setLoading(false);
     }
+    
   };
+  
 
   const goToRegister = () => {
     navigate("/signup")
@@ -91,7 +113,7 @@ function Login() {
                   errors.password ? 'border-red-500' : 'border-gray-300'
                 } focus:outline-none focus:ring-2 focus:ring-yellow-500`}
               />
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+              {errors.password && <p className="text-red-500 text-semibold mt-1">{errors.password}</p>}
             </div>
             <button
               type="submit"
@@ -100,7 +122,8 @@ function Login() {
               Login
             </button>
           </form>
-          {serverResponse && <p className="mt-4 text-center text-red-500">{serverResponse}</p>}
+          {loading && <p className="mt-4 text-center font-semibold text-gray-500">Loading...</p>}
+          {serverResponse && <p className="mt-4 text-center font-semibold text-red-500">{serverResponse}</p>}
           <button
             onClick={goToRegister}
             className="mt-4 w-full text-yellow-600 border border-yellow-600 p-3 rounded-lg hover:bg-yellow-100 transition duration-300"

@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import signupimage from '../signupimage3.png';
 import axios from 'axios';
-
+import {toast} from 'sonner'
 function Signup() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -38,9 +39,11 @@ function Signup() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
+      setLoading(true);
       axios.post('http://localhost:5000/auth/signup', { username, email, password, contact })
         .then((res) => {
           if (res.status === 200) {
+            toast.success('User registered successfully');
             setErrors({});
             setUsername('');
             setEmail('');
@@ -51,11 +54,13 @@ function Signup() {
         })
         .catch((err) => {
           if (err.response && err.response.status === 400) {
+            toast.error(err.response.data.message);
             setErrors({ email: err.response.data.message });
           } else {
             console.error('Error:', err);
           }
         });
+        setLoading(false)
     }
   };
 
@@ -136,6 +141,7 @@ function Signup() {
               Sign Up
             </button>
           </form>
+          {loading && <p className="mt-4 text-center font-semibold text-gray-500">Loading...</p>}
           <button
             onClick={goToLogin}
             className="mt-4 w-full text-yellow-600 border border-yellow-600 p-3 rounded-lg hover:bg-yellow-100 transition duration-300"

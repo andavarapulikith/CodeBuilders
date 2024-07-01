@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AuthContext } from "../providers/authProvider";
 import { useContext } from "react";
 import { Link } from 'react-router-dom';
+import Navbar from './Navbar';
 const LeaderboardPage = () => {
   // Dummy data for leaderboard (considering more than 20 users for pagination example)
   var isloggedin=false;
@@ -52,41 +53,7 @@ const LeaderboardPage = () => {
 
   return (
     <>
-       <nav className="bg-yellow-200 text-yellow-600 shadow-md">
-    <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold">
-            Codebuilders
-        </Link>
-        <ul className="flex space-x-4">
-            <li>
-                <Link to='/' className="hover:text-yellow-300">
-                    Home
-                </Link>
-            </li>
-            <li>
-                <Link to={isloggedin ? '/allproblems' : '/login'} className="hover:text-yellow-300">
-                    All problems
-                </Link>
-            </li>
-            <li>
-                <Link to={isloggedin ? '/leaderboard' : '/login'} className="hover:text-yellow-300">
-                    Leaderboard
-                </Link>
-            </li>
-            <li>
-                <Link to="/texteditor" className="hover:text-yellow-300">
-                    TextEditor
-                </Link>
-            </li>
-            <li>
-                <Link to="/ide" className="hover:text-yellow-300">
-                    Online IDE
-                </Link>
-            </li>
-        </ul>
-    </div>
-</nav>
-
+      <Navbar></Navbar>
   
     <div className="w-screen h-screen overflow-auto bg-yellow-50 p-6">
       <div className="container mx-auto px-6 py-12">

@@ -21,9 +21,9 @@ const login_post = (req, res) => {
                             expiresIn: "24h"
                         }
                     );
-                    res.status(200).json({ message: "Form submitted successfully", user,token });
+                    res.status(200).json({success:true, message: "Form submitted successfully", user,token });
                 } else {
-                    res.status(401).json({ message: "Invalid credentials" });
+                    res.status(401).json({success:false, message: "Invalid credentials" });
                 }
             }).catch((err) => {
                 console.log(err);

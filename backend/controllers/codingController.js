@@ -3,12 +3,14 @@ const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const Submission = require("../models/submission_model");
+const { S3Client, PutObjectCommand,GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const dotenv = require('dotenv');
+dotenv.config();
 
-//get all problems controller
 const allproblems_get = (req, res) => {
-  // console.log("inside all problems controller");
   const userid=req.params.userid;
-  console.log(userid)
+
   if(userid == undefined ){
     return res.status(401).json({message:"User not authenticated"});
   }
@@ -23,17 +25,10 @@ const allproblems_get = (req, res) => {
       res.json({ message: "Error in fetching questions" });
     });
   })
-  // Question.find()
-  //   .then((questions) => {
-  //     res.json({ questions });
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //     res.json({ message: "Error in fetching questions" });
-  //   });
+  
 };
 
-//single problem controller
+
 const singleproblem_get = (req, res) => {
   const id = req.params.id;
   Question.findById(id)
@@ -46,20 +41,77 @@ const singleproblem_get = (req, res) => {
     });
 };
 
-// add problem controller
-const addproblem_post = (req, res) => {
-  const question = new Question(req.body);
 
-  question
-    .save()
-    .then((question) => {
-      res.status(200).json({ message: "Question added successfully" });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(401).json({ message: "Error in adding question" });
+
+
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+const addproblem_post = async (req, res) => {
+  try {
+    const { title, description, difficulty, constraints, inputFormat, outputFormat, sampleTestCases, topicTags, companyTags,userid } = req.body;
+    const { inputFile, outputFile } = req.files;
+
+    let inputFileUrl = '';
+    let outputFileUrl = '';
+
+    if (inputFile && inputFile.length > 0) {
+      const inputFileData = inputFile[0];
+      const inputKey = `uploads/user-uploads/${Date.now()}_${inputFileData.originalname}`;
+      const inputParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: inputKey,
+        Body: inputFileData.buffer,
+        ContentType: inputFileData.mimetype,
+      };
+      await s3Client.send(new PutObjectCommand(inputParams));
+      inputFileUrl = inputKey;
+    }
+
+    if (outputFile && outputFile.length > 0) {
+      const outputFileData = outputFile[0];
+      const outputKey = `uploads/user-uploads/${Date.now()}_${outputFileData.originalname}`;
+      const outputParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: outputKey,
+        Body: outputFileData.buffer,
+        ContentType: outputFileData.mimetype,
+      };
+      await s3Client.send(new PutObjectCommand(outputParams));
+      outputFileUrl = outputKey;
+   
+    }
+
+    const newQuestion = new Question({
+      userid: userid,
+      title,
+      description,
+      difficulty,
+      constraints,
+      inputFormat,
+      outputFormat,
+      sampleTestCases:sampleTestCases,
+      inputFile: inputFileUrl,
+      outputFile: outputFileUrl,
+      topicTags: topicTags,
+      companyTags: companyTags,
     });
+
+    await newQuestion.save();
+    res.status(201).json({ message: 'Problem added successfully', question: newQuestion });
+
+  } catch (error) {
+    console.error('Error adding problem:', error);
+    res.status(500).json({ error: 'An error occurred while adding the problem' });
+  }
 };
+
+
 
 const runproblem_post = (req, res) => {
   const { code, language, input } = req.body;
@@ -159,7 +211,7 @@ function executeCode(command, inputFilePath, tempCodeFilePath, res) {
 }
 
 const submit_post = async (req, res) => {
-  const { questionId, userId, code, language } = req.body;
+  const { questionId, userId, language } = req.body;
   
   try {
     const question = await Question.findById(questionId);
@@ -168,9 +220,28 @@ const submit_post = async (req, res) => {
       return res.status(404).json({ error: "Question not found" });
     }
 
-    const testCases = question.testCases;
-    question.submissionsCount += 1;
-    question.save();
+    const inputFileKey = question.inputFile; 
+    const outputFileKey = question.outputFile; 
+
+    const code = req.body.code; 
+    const inputUrl = await getObjectURL(inputFileKey);
+
+    const inputResponse = await fetch(inputUrl);
+
+    if (!inputResponse.ok) {
+      return res.status(500).json({ error: "Failed to fetch input file from S3" });
+    }
+
+    const inputText = await inputResponse.text();
+
+    const outputUrl = await getObjectURL(outputFileKey);
+    const outputResponse = await fetch(outputUrl);
+    if (!outputResponse.ok) {
+      return res.status(500).json({ error: "Failed to fetch output file from S3" });
+    }
+
+    const outputText = await outputResponse.text();
+
     let fileExtension, compileCommand, runCommand, mainFileName;
 
     if (language === "python") {
@@ -212,8 +283,8 @@ const submit_post = async (req, res) => {
           console.log("compile error occured")
           fs.unlinkSync(tempCodeFilePath);
           const submission = new Submission({
-            userid:userId,
-            questionid:questionId,
+            userid: userId,
+            questionid: questionId,
             code,
             language,
             verdict: "Compilation Error",
@@ -223,25 +294,27 @@ const submit_post = async (req, res) => {
             .status(500)
             .json({ error: "Compilation error", details: compileStderr });
         }
-        runTestCases(
+        compareOutput(
           userId,
           questionId,
           code,
           language,
           runCommand,
-          testCases,
+          inputText,
+          outputText,
           tempCodeFilePath,
           res
         );
       });
     } else {
-      runTestCases(
+      compareOutput(
         userId,
         questionId,
         code,
         language,
         runCommand,
-        testCases,
+        inputText,
+        outputText,
         tempCodeFilePath,
         res
       );
@@ -252,99 +325,77 @@ const submit_post = async (req, res) => {
   }
 };
 
-function runTestCases(
-  userid,
-  questionid,
+async function getObjectURL(key) {
+  const command = new GetObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: key,
+  });
+  const url = await getSignedUrl(s3Client, command);
+  return url;
+}
+
+function compareOutput(
+  userId,
+  questionId,
   code,
   language,
   runCommand,
-  testCases,
+  inputText,
+  outputText,
   tempCodeFilePath,
   res
 ) {
-  
-  let results = [];
-
-  testCases.forEach((testCase, index) => {
-    const inputFilePath = path.join(__dirname, `input${index}.txt`);
-    fs.writeFileSync(inputFilePath, testCase.input);
-    const options = { input: fs.readFileSync(inputFilePath) };
-    const childProcess = exec(runCommand, options, (error, stdout, stderr) => {
-      if (fs.existsSync(inputFilePath)) fs.unlinkSync(inputFilePath);
-      if (error) {
-        results.push({
-          input: testCase.input,
-          expectedOutput: testCase.output,
-          actualOutput: null,
-          error: stderr,
-          verdict: "Error",
-        });
-      } else {
-        const normalize = (str) => str.replace(/\r\n/g, "\n").trim();
-        const actualOutput = normalize(stdout);
-        const expectedOutput = normalize(testCase.output);
-        const verdict = actualOutput === expectedOutput ? "Pass" : "Fail";
-        results.push({
-          input: testCase.input,
-          expectedOutput: testCase.output,
-          actualOutput: stdout,
-          error: stderr,
-          verdict,
-        });
-      }
-
-      if (results.length === testCases.length) {
-        if (fs.existsSync(tempCodeFilePath)) fs.unlinkSync(tempCodeFilePath);
-        if (
-          runCommand.includes(".out") &&
-          fs.existsSync(path.join(__dirname, "main.out"))
-        ) {
-          fs.unlinkSync(path.join(__dirname, "main.out"));
-        } else if (
-          runCommand.includes("java") &&
-          fs.existsSync(tempCodeFilePath.replace(".java", ".class"))
-        ) {
-          fs.unlinkSync(tempCodeFilePath.replace(".java", ".class"));
-        }
-
-        verdict = "all tests passed";
-        for (let i = 0; i < results.length; i++) {
-          if (results[i].verdict === "Fail") {
-            verdict = "failed on test case" + (i + 1);
-            break;
-          }
-        }
-        if (verdict === "all tests passed") {
-          const submission = new Submission({
-            userid,
-            questionid,
-            code,
-            language,
-            verdict,
-            submissionStatus: true,
-          });
-          submission.save();
-        } else {
-          const submission = new Submission({
-            userid,
-            questionid,
-            code,
-            language,
-            verdict,
-          });
-          submission.save();
-        }
-        res.json({ results });
-      }
-    });
-
-  
-    if (options.input) {
-      childProcess.stdin.write(options.input);
-      childProcess.stdin.end();
+  const options = { input: inputText };
+  const childProcess = exec(runCommand, options, (error, stdout, stderr) => {
+    if (error) {
+      const submission = new Submission({
+        userid: userId,
+        questionid: questionId,
+        code,
+        language,
+        verdict: "Execution Error",
+      });
+      submission.save();
+      return res.status(500).json({ error: "Execution error", details: stderr });
     }
+
+    const normalize = (str) => str.replace(/\r\n/g, "\n").trim();
+    const actualOutput = normalize(stdout);
+    const expectedOutput = normalize(outputText);
+    const verdict = actualOutput === expectedOutput ? "Pass" : "Fail";
+    let submissionstatus=false
+    if(verdict==="Pass")
+      submissionstatus=true
+    const submission = new Submission({
+      userid: userId,
+      questionid: questionId,
+      code,
+      language,
+      verdict,
+      submissionStatus:submissionstatus
+    });
+    submission.save();
+
+    if (fs.existsSync(tempCodeFilePath)) fs.unlinkSync(tempCodeFilePath);
+
+    res.json({
+      results: {
+        input: inputText,
+        expectedOutput: outputText,
+        actualOutput,
+        error: stderr,
+        verdict,
+
+      },
+    });
   });
+
+  if (options.input) {
+    childProcess.stdin.write(options.input);
+    childProcess.stdin.end();
+  }
 }
+
 
 module.exports = {
   allproblems_get,

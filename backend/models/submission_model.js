@@ -27,6 +27,10 @@ const SubmissionSchema=new mongoose.Schema({
     submissionStatus:{
         type:Boolean,
         default:false
+    },
+    createdAt:{
+        type:Date,
+        default:Date.now
     }
     
 })

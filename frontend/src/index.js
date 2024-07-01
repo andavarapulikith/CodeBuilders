@@ -6,10 +6,12 @@ import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './providers/authProvider';
 import { BrowserRouter } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { Toaster } from 'sonner';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
 <GoogleOAuthProvider clientId="832338382343-ap5t80jdijtsurdp9m7qtm81j18tg4li.apps.googleusercontent.com">
+<Toaster  position="bottom-center" expand={true} richColors/>
   <AuthProvider>
     <App />
   </AuthProvider>

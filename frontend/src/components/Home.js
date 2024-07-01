@@ -9,6 +9,7 @@ import contactusimage from '../contactus.jpg'
 import { AuthContext } from "../providers/authProvider";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
 const Home = () => {
   var isloggedin=false;
   
@@ -19,42 +20,7 @@ const Home = () => {
   console.log(isloggedin)
   return (
     <div>
-      {/* Navbar */}
-      <nav className="bg-transparent text-yellow-600 fixed w-full z-10">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="text-xl font-bold text-yellow-600">
-            Codebuilders
-          </Link>
-          <ul className="flex space-x-4">
-            <li>
-              <Link to='/' className="hover:text-yellow-300">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to={isloggedin?'/allproblems':'/login'} className="hover:text-yellow-300">
-                All Questions
-              </Link>
-            </li>
-            <li>
-              <Link to={isloggedin?'/leaderboard':'/login'} className="hover:text-yellow-300">
-                Leaderboard
-              </Link>
-            </li>
-            <li>
-            <Link to="/texteditor" className="hover:text-yellow-300">
-                               TextEditor
-                            </Link>
-            </li>
-            <li>
-                <Link to="/ide" className="hover:text-yellow-300">
-                    Online IDE
-                </Link>
-            </li>
-            
-          </ul>
-        </div>
-      </nav>
+      <Navbar></Navbar>
 
       {/* Hero Section */}
       <section className="bg-gray-100 pt-20 md:pt-32 pb-20">

@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
-  userid:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:'User',
-    required:true
+  userid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   title: {
     type: String,
@@ -48,18 +48,15 @@ const questionSchema = new mongoose.Schema({
       },
     },
   ],
-  testCases: [
-    {
-      input: {
-        type: String,
-        required: true,
-      },
-      output: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+  
+  inputFile: {
+    type: String, // Path to the input file
+    required: false, // This can be optional if direct input is provided
+  },
+  outputFile: {
+    type: String, // Path to the output file
+    required: false, // This can be optional if direct output is provided
+  },
   topicTags: [
     {
       type: String,
@@ -73,8 +70,8 @@ const questionSchema = new mongoose.Schema({
     }
   ],
   submissionsCount: {
-    type:Number,
-    default:0
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 

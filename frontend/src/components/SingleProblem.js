@@ -3,6 +3,9 @@ import axios from "axios";
 import { useParams, Link } from "react-router-dom";
 import { AuthContext } from "../providers/authProvider";
 import Editor from "@monaco-editor/react";
+import { ClipLoader } from "react-spinners";
+import {toast} from 'sonner';
+
 const SingleProblemPage = () => {
   const [language, setLanguage] = useState("python");
   const [problem, setProblem] = useState(null);
@@ -10,8 +13,10 @@ const SingleProblemPage = () => {
   const { id } = useParams();
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [error,setError]=useState("");
-  const [submittedOutput,setSubmittedOutput]=useState("");
+  const [error, setError] = useState("");
+  const [submittedOutput, setSubmittedOutput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   var isloggedin = false;
   const authData = useContext(AuthContext);
@@ -20,65 +25,70 @@ const SingleProblemPage = () => {
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
   };
-  const runCode = () => {
-    // console.log(code,input);
-    axios
-      .post("http://localhost:5000/coding/runproblem", { code,language, input })
-      .then((res) => {
-        
-        if(res.data.output!==""){
-        setOutput(res.data.output);
-        setError("")
-        }
-        if(res.data.error!=="")
-          {
-          setError(res.data.error)
-          
-          }
 
+  const runCode = () => {
+    setLoading(true); // Set loading state to true
+    axios
+      .post("http://localhost:5000/coding/runproblem", { code, language, input })
+      .then((res) => {
+        if (res.data.output !== "") {
+          setOutput(res.data.output);
+          setError("");
+        }
+        if (res.data.error !== "") {
+          setError(res.data.error);
+        }
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
- const onSubmit=()=>{
-    let userId=authData.authData.user._id;
-    console.log(userId)
-    axios.post("http://localhost:5000/coding/submit",{questionId:id,userId,code,language}).then((res)=>{
-      console.log(res.data);
-     if(res.data.error){
-        setError(res.data.error)
-     }
-     else
-     {
-       let results=res.data.results;
-       let flag=0
-       for(let i=0;i<results.length;i++)
-       {
-        // console.log(results[i].verdict)
-         if(results[i].verdict=="Fail")
-         {
-          flag=1
-          setSubmittedOutput("failed in test case "+(i+1))
-           break;
-         }
-       }
-       if(flag==0)
-       setSubmittedOutput("All test cases passed")
 
-     }
-    }).catch((err)=>{
-      console.log(err);
-    })
-  
- }
+  const onSubmit = () => {
+    if(!code){
+      setError("Code cannot be empty");
+      return;
+    }
+    setSubmitted(true);
+    let userId = authData.authData.user._id;
+    axios
+      .post("http://localhost:5000/coding/submit", {
+        questionId: id,
+        userId,
+        code,
+        language,
+      })
+      .then((res) => {
+        if (res.data.error) {
+          setError(res.data.error);
+        } else {
+          console.log(res.data)
+          setSubmittedOutput(res.data.results.verdict);
+          if(res.data.results.verdict==="Fail"){
+            toast.error("Failed in some test cases");
+        }
+        else{
+          toast.success("All testcases passed");
+        }
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setSubmitted(false);
+      });
+  };
+
   useEffect(() => {
-    // Fetch problem details based on the problem ID
     const fetchProblem = async () => {
       try {
         const response = await axios.get(
           `http://localhost:5000/coding/getproblem/${id}`
-        ); // Update with your backend endpoint
+        );
         setProblem(response.data.question);
       } catch (error) {
         console.error("Error fetching problem:", error);
@@ -86,7 +96,7 @@ const SingleProblemPage = () => {
     };
 
     fetchProblem();
-  }, []);
+  }, [id]);
 
   if (!problem) {
     return <div>Loading...</div>;
@@ -135,9 +145,8 @@ const SingleProblemPage = () => {
         </div>
       </nav>
 
-      <div className="w-screen h-screen  overflow-hidden">
+      <div className="w-screen h-screen overflow-hidden">
         <div className="flex flex-col md:flex-row h-full">
-          {/* Left Section - Problem Description */}
           <div className="w-full md:w-1/2 h-full overflow-auto bg-white p-6">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">
               {problem.title}
@@ -183,7 +192,6 @@ const SingleProblemPage = () => {
                     <p className="text-gray-600 mb-2">
                       <strong>Input:</strong>
                     </p>
-                    {/* Format input array and target on separate lines */}
                     <p className="text-gray-600 mb-2">
                       {testCase.input.split("\n").map((line, index) => (
                         <React.Fragment key={index}>
@@ -195,7 +203,6 @@ const SingleProblemPage = () => {
                     <p className="text-gray-600">
                       <strong>Output:</strong>
                     </p>
-                    {/* Format output array on separate lines */}
                     <p className="text-gray-600 mb-2">
                       {testCase.output.split("\n").map((line, index) => (
                         <React.Fragment key={index}>
@@ -223,7 +230,6 @@ const SingleProblemPage = () => {
             </div>
           </div>
 
-          {/* Right Section - Code Editor */}
           <div className="w-full md:w-1/2 h-full overflow-auto bg-gray-800 p-6">
             <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
               <div className="flex justify-between items-center mb-4">
@@ -254,7 +260,10 @@ const SingleProblemPage = () => {
               >
                 Run
               </button>
-              <button onClick={onSubmit} className="px-4 py-2  bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700">
+              <button
+                onClick={onSubmit}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700"
+              >
                 Submit
               </button>
             </div>
@@ -269,14 +278,26 @@ const SingleProblemPage = () => {
             </div>
             <div className="mt-4">
               <h3 className="text-xl font-semibold text-white mb-2">Output</h3>
-              <textarea
-              value={output}
+              {loading?(
+              <div className="text-white text-center mt-4">
+                <ClipLoader color="#FFFFFF" size={35} />
+              </div>
+            ):<textarea
+                value={output}
                 className="w-full h-20 bg-white text-gray-800 p-4 rounded-lg focus:outline-none"
                 placeholder="Output from your code..."
-              ></textarea>
+              ></textarea>}
             </div>
-            {error && <div className="text-red-500">{error}</div>}
-            {submittedOutput && <div className="text-blue-500 text-lg">{submittedOutput}</div>}
+            
+            {error &&<><h3 className="text-xl font-semibold text-white mb-2">Error</h3> <div className="text-red-500 bg-white p-4 rounded-lg ">{error}</div></>}
+            {submitted && <> <h3 className="text-xl font-bold text-white mb-2">Submission status</h3><div className="text-white text-center mt-4">
+                <ClipLoader color="#FFFFFF" size={35} />
+              </div> </>}
+            {submittedOutput && (<>
+              <h3 className="text-xl font-bold text-white mb-2">Submission status</h3>
+              {submittedOutput==="Fail"?<div className="text-white bg-red-700 p-3 rounded-lg font-semibold  text-lg">Failed in some test cases</div>:<div className="text-white bg-green-500 p-3 rounded-lg font-semibold text-lg">All testcases passed</div>}
+              </>
+            )}
           </div>
         </div>
       </div>
