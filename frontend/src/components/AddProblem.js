@@ -7,6 +7,7 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import Navbar from './Navbar';
 import { backendurl } from '../backendurl.js';
+import {useNavigate} from 'react-router-dom'
 window.katex = katex;
 const AddProblemPage = () => {
   const [problemData, setProblemData] = useState({
@@ -22,7 +23,7 @@ const AddProblemPage = () => {
     inputFile: null,
     outputFile: null,
   });
-
+  const navigate=useNavigate();
   const authData = useContext(AuthContext);
   
 
@@ -90,7 +91,8 @@ const AddProblemPage = () => {
       const response = await axios.post(`${backendurl}/coding/addproblem`, data, { headers: { 
         'Content-Type': 'multipart/form-data',
       } });
-      if (response.status === 200) {
+      console.log(response)
+      if (response.status === 201) {
         setProblemData({
           title: '',
           description: '',
@@ -104,6 +106,7 @@ const AddProblemPage = () => {
           inputFile: null,
           outputFile: null,
         });
+        navigate("/allquestions")
       }
     } catch (error) {
       console.error('Error adding problem:', error);

@@ -3,19 +3,20 @@ import axios from 'axios';
 import { AuthContext } from "../providers/authProvider";
 import Navbar from './Navbar';
 import { backendurl } from '../backendurl';
+import { ClipLoader } from "react-spinners";
 const LeaderboardPage = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10; // Number of users per page
+  const [loading,setLoading]=useState(false)
+  const pageSize = 10; 
 
-  // Fetch data from the backend
   useEffect(() => {
     const fetchScores = async () => {
+      setLoading(true)
       try {
         const response = await axios.get(`${backendurl}/coding/getscores`);
         const userScores = response.data.userScores;
         
-        // Add rank to each user
         const rankedUsers = userScores.map((user, index) => ({
           rank: index + 1,
           name: user.user,
@@ -27,6 +28,7 @@ const LeaderboardPage = () => {
       } catch (error) {
         console.error('Error fetching scores:', error);
       }
+      setLoading(false)
     };
 
     fetchScores();
@@ -56,7 +58,9 @@ const LeaderboardPage = () => {
                   <th className="px-4 py-2 text-yellow-900">Problems Solved</th>
                 </tr>
               </thead>
-              <tbody>
+              {loading ?<div className="text-white text-center mt-4">
+            <ClipLoader color="#000000" size={60} />
+          </div>:<tbody>
                 {currentUsers.map((user, index) => (
                   <tr key={index} className="hover:bg-yellow-100">
                     <td className="border px-4 py-2">{user.rank}</td>
@@ -65,7 +69,7 @@ const LeaderboardPage = () => {
                     <td className="border px-4 py-2">{user.problemsSolved}</td>
                   </tr>
                 ))}
-              </tbody>
+              </tbody>}
             </table>
           </div>
           {/* Pagination */}

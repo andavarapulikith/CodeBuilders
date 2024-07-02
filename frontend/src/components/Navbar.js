@@ -28,17 +28,13 @@ const Navbar = () => {
               Leaderboard
             </Link>
           </li>
-          <li>
-            <Link to="/texteditor" className="hover:text-yellow-300 font-semibold">
-              TextEditor
-            </Link>
-          </li>
+          
           <li>
             <Link to="/ide" className="hover:text-yellow-300 font-semibold">
               Online IDE
             </Link>
           </li>
-          {isLoggedIn && authData.authData.role === "user" && (
+          {isLoggedIn  && (
             <li>
               <Link to="/profile" className="hover:text-yellow-300 font-semibold">
                 Profile

@@ -102,6 +102,12 @@ const AllQuestionsPage = () => {
           >
             All Questions
           </Link>
+          <Link
+            to="/addproblem"
+            className="block py-2.5 px-4 rounded-md text-white"
+          >
+            Add Problem
+          </Link>
         </nav>
       </div>
 

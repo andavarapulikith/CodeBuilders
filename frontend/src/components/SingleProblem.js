@@ -63,7 +63,9 @@ const SingleProblemPage = () => {
         language,
       })
       .then((res) => {
+      
         if (res.data.error) {
+          console.log(res.data.error);  
           setError(res.data.error);
         } else {
           console.log(res.data)
@@ -107,7 +109,9 @@ const SingleProblemPage = () => {
     <>
       
       <Navbar></Navbar>
-      <div className="w-screen h-screen overflow-hidden">
+      {!isloggedin?<div className="text-white text-center mt-4">
+            <ClipLoader color="#000000" size={60} />
+          </div>:<div className="w-screen h-screen overflow-hidden">
         <div className="flex flex-col md:flex-row h-full">
           <div className="w-full md:w-1/2 h-full overflow-auto bg-white p-6">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">
@@ -252,17 +256,17 @@ const SingleProblemPage = () => {
             </div>
             
             {error &&<><h3 className="text-xl font-semibold text-white mb-2">Error</h3> <div className="text-red-500 bg-white p-4 rounded-lg ">{error}</div></>}
-            {submitted && <> <h3 className="text-xl font-bold text-white mb-2">Submission status</h3><div className="text-white text-center mt-4">
+         
+            {submitted? <><h3 className="text-xl font-bold text-white mb-2">Submission status</h3><div className="text-white text-center mt-4">
                 <ClipLoader color="#FFFFFF" size={35} />
-              </div> </>}
-            {submittedOutput && (<>
+              </div> </>:submittedOutput && (<>
               <h3 className="text-xl font-bold text-white mb-2">Submission status</h3>
               {submittedOutput==="Fail"?<div className="text-white bg-red-700 p-3 rounded-lg font-semibold  text-lg">Failed in some test cases</div>:<div className="text-white bg-green-500 p-3 rounded-lg font-semibold text-lg">All testcases passed</div>}
               </>
             )}
           </div>
         </div>
-      </div>
+      </div>}
     </>
   );
 };

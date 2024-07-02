@@ -85,10 +85,14 @@ const UsersPage = () => {
           >
             All Questions
           </Link>
+          <Link
+            to="/addproblem"
+            className="block py-2.5 px-4 rounded-md text-white"
+          >
+            Add Problem
+          </Link>
         </nav>
       </div>
-
-      {/* Main Content */}
       {loading ? (
         <div className="text-white text-center mt-4 mr-auto ml-auto">
           <ClipLoader color="#000000" size={60} />
@@ -112,9 +116,7 @@ const UsersPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contact Number
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rank
-                </th>
+                
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -128,7 +130,7 @@ const UsersPage = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {user.contact_number}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.rank}</td>
+                 
                 </tr>
               ))}
             </tbody>
