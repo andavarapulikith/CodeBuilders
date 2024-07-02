@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom"; 
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
+import { backendurl } from "../backendurl";
 const AllQuestionsPage = () => {
   const [questions, setQuestions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,7 +17,7 @@ const AllQuestionsPage = () => {
     setLoading(true)
     try {
       // Example URL for fetching all questions (replace with your actual endpoint)
-      const response = await axios.get(`http://localhost:5000/admin/questions`);
+      const response = await axios.get(`${backendurl}/admin/questions`);
       if (response.data.success) {
         setQuestions(response.data.data);
       } else {
@@ -43,7 +44,7 @@ const AllQuestionsPage = () => {
     console.log(questionId);
     try {
       const response = await axios.delete(
-        `http://localhost:5000/admin/questions/${questionId}`
+        `${backendurl}/admin/questions/${questionId}`
       );
       if (response.data.success) {
         setQuestions(

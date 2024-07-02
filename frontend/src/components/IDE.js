@@ -6,7 +6,7 @@ import { AuthContext } from '../providers/authProvider';
 import { ClipLoader } from 'react-spinners';
 import { toast } from 'sonner';
 import Navbar from './Navbar';
-
+import { backendurl } from '../backendurl';
 const IDE = () => {
   const [code, setCode] = useState(''); // Default code
   const [language, setLanguage] = useState('cpp'); // Default language
@@ -24,7 +24,7 @@ const IDE = () => {
   const runCode = () => {
     setLoading(true); // Set loading state to true
     axios
-      .post('http://localhost:5000/coding/runproblem', { code, language, input })
+      .post(`${backendurl}/coding/runproblem`, { code, language, input })
       .then((res) => {
         if (res.data.output !== '') {
           setError("")

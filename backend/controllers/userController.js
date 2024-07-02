@@ -28,11 +28,9 @@ const calculateScore = async (userId) => {
   
         if (verdict === 'Pass') {
           if (!solvedQuestions.has(questionId)) {
-            // Add score for correct submission and increment problemsSolved
+            
             score += questionPoints[question.difficulty];
             problemsSolved += 1;
-  
-            // Deduct the accumulated penalties for incorrect submissions if any
             if (questionDeductions[questionId]) {
               score += questionDeductions[questionId];
               delete questionDeductions[questionId];
@@ -42,7 +40,6 @@ const calculateScore = async (userId) => {
           }
         } else {
           if (!solvedQuestions.has(questionId)) {
-            // Track deductions for the question
             if (!questionDeductions[questionId]) {
               questionDeductions[questionId] = 0;
             }
@@ -101,8 +98,6 @@ const get_submissions=async (req,res)=>{
                 }
                 countedQuestionIds.set(question._id.toString(), true);
             }
-
-                // Add processed submission data
                 submissionsData.push({
                     date: submission.createdAt,
                     code:submission.code,
@@ -115,8 +110,6 @@ const get_submissions=async (req,res)=>{
                
             
         }
-
-        // Prepare response object
         const responseData = {
             submissions: submissionsData,
             questionsSolved: {
@@ -139,21 +132,13 @@ const edit_user = async (req, res) => {
     const { username, contact_number } = req.body;
 
     try {
-        // Find the user by ID
         const user = await User.findById(userid);
-
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
-        // Update user details
         user.username = username;
         user.contact_number = contact_number;
-
-        // Save the updated user
         await user.save();
-
-        // Return updated user details
         res.status(200).json(user);
     } catch (error) {
         console.error('Error updating user:', error);

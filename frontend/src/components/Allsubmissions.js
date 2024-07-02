@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios"; // Import axios for making HTTP requests
 import { ClipLoader } from "react-spinners";
+import { backendurl } from "../backendurl";
 const SubmissionsPage = () => {
   const [submissions, setSubmissions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,7 +18,7 @@ const SubmissionsPage = () => {
   const fetchSubmissions = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/admin/submissions"
+        `${backendurl}/admin/submissions`
       );
       setSubmissions(response.data.data); // Assuming response.data.data contains submissions array
       setLoading(false); // Update loading state after successful fetch

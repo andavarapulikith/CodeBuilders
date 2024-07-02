@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../providers/authProvider';
 import { useContext } from 'react';
 import {toast} from 'sonner'
-
+import {backendurl} from '../backendurl.js';
+import { Navigate } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -38,7 +39,8 @@ function Login() {
     if (validateForm()) {
       setLoading(true);
       try {
-        const response = await axios.post('http://localhost:5000/auth/login', { email, password });
+        console.log(`${backendurl}/login`)
+        const response = await axios.post(`${backendurl}/auth/login`, { email, password });
         console.log(response.data);
         
         if (response.data.success === false) {

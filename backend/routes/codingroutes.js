@@ -1,11 +1,15 @@
-const router = require('express').Router();
-const verifyToken = require('../middleware/auth');
-const codingController = require('../controllers/codingController');
-const multer = require('multer');
-const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const multerS3 = require('multer-s3');
-const dotenv = require('dotenv');
+const router = require("express").Router();
+const verifyToken = require("../middleware/auth");
+const codingController = require("../controllers/codingController");
+const multer = require("multer");
+const {
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand,
+} = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const multerS3 = require("multer-s3");
+const dotenv = require("dotenv");
 dotenv.config();
 
 // const s3Client = new S3Client({
@@ -25,10 +29,10 @@ dotenv.config();
 
 // // Function to get signed URL for S3 object upload
 // async function putObject(filename) {
-//   const command = new PutObjectCommand({ 
-//     Bucket: process.env.AWS_BUCKET_NAME, 
-//     Key: `uploads/user-uploads/${filename}`, 
-//     ContentType: "text/plain" 
+//   const command = new PutObjectCommand({
+//     Bucket: process.env.AWS_BUCKET_NAME,
+//     Key: `uploads/user-uploads/${filename}`,
+//     ContentType: "text/plain"
 //   });
 //   const url = await getSignedUrl(s3Client, command, { expiresIn: 36000 });
 //   return url;
@@ -52,8 +56,6 @@ dotenv.config();
 //   }
 // }});
 
-
-
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -66,30 +68,34 @@ const s3Client = new S3Client({
 const storage = multer.memoryStorage();
 
 // Initialize multer instance
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   fileFilter: function (req, file, cb) {
-    if (file.mimetype === 'text/plain') {
+    if (file.mimetype === "text/plain") {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type, only TXT allowed!'), false);
+      cb(new Error("Invalid file type, only TXT allowed!"), false);
     }
-  }
+  },
 });
 
-router.get('/allproblems/:userid', verifyToken, codingController.allproblems_get);
-
-router.get('/getproblem/:id', codingController.singleproblem_get);
-
-router.post('/addproblem', verifyToken, upload.fields([
-  { name: 'inputFile', maxCount: 1 }, // Specify the field name and max file count
-  { name: 'outputFile', maxCount: 1 }
-]), codingController.addproblem_post);
-
+router.get(
+  "/allproblems/:userid",
+  verifyToken,
+  codingController.allproblems_get
+);
+router.get("/getproblem/:id", codingController.singleproblem_get);
+router.post(
+  "/addproblem",
+  verifyToken,
+  upload.fields([
+    { name: "inputFile", maxCount: 1 },
+    { name: "outputFile", maxCount: 1 },
+  ]),
+  codingController.addproblem_post
+);
 router.post("/runproblem", verifyToken, codingController.runproblem_post);
-
 router.post("/submit", verifyToken, codingController.submit_post);
-
-router.get("/getscores",codingController.get_scores)
+router.get("/getscores", codingController.get_scores);
 
 module.exports = router;

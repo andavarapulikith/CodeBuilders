@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { AuthContext } from "../providers/authProvider";
 import { useContext } from "react";
-
+import { useNavigate } from "react-router-dom";
 const Navbar = () => {
   const authData = useContext(AuthContext);
   const isLoggedIn = authData.authData !== null;
-
+  const navigate=useNavigate();
   return (
     <nav className="bg-yellow-200 text-yellow-900 shadow-md">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -71,6 +71,7 @@ const Navbar = () => {
               onClick={() => {
                 // Implement the logout functionality here
                 authData.logout();
+                navigate("/")
               }}
               className="hover:text-yellow-300 font-semibold "
             >

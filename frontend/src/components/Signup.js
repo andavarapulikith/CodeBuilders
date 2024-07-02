@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import signupimage from '../signupimage3.png';
 import axios from 'axios';
 import {toast} from 'sonner'
+import { backendurl } from '../backendurl';
 function Signup() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -40,7 +41,7 @@ function Signup() {
     e.preventDefault();
     if (validateForm()) {
       setLoading(true);
-      axios.post('http://localhost:5000/auth/signup', { username, email, password, contact })
+      axios.post(`${backendurl}/auth/signup`, { username, email, password, contact })
         .then((res) => {
           if (res.status === 200) {
             toast.success('User registered successfully');

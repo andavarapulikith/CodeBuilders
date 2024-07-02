@@ -6,7 +6,7 @@ import axios from "axios";
 import { AuthContext } from "../providers/authProvider";
 import Navbar from "./Navbar";
 import { ClipLoader } from "react-spinners";
-
+import { backendurl } from "../backendurl";
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [yearlyStats, setYearlyStats] = useState([]);
@@ -43,7 +43,7 @@ const UserProfile = () => {
         console.log("User ID:", userid); // Log user ID
 
         const response = await axios.get(
-          `http://localhost:5000/user/${userid}`
+          `${backendurl}/user/${userid}`
         );
         const userData = response.data;
         console.log("User Data:", userData); // Log user data
@@ -51,7 +51,7 @@ const UserProfile = () => {
         setUser(userData);
 
         const response2 = await axios.get(
-          `http://localhost:5000/user/submissions/${userid}`
+          `${backendurl}/user/submissions/${userid}`
         );
         const submissionsData = response2.data;
 
@@ -164,7 +164,7 @@ const UserProfile = () => {
       };
       console.log(updatedUserData);
       const response = await axios.put(
-        `http://localhost:5000/user/edit/${userid}`,
+        `${backendurl}/user/edit/${userid}`,
         updatedUserData
       );
       console.log("User data updated:", response.data);

@@ -3,6 +3,8 @@ const Question = require("../models/question_model");
 const User = require("../models/user_model");
 const Submission = require("../models/submission_model");
 
+
+//get admin dashboard data
 const get_admin_data = async (req, res) => {
   try {
     const totalQuestions = await Question.countDocuments();
@@ -104,12 +106,12 @@ const get_admin_data = async (req, res) => {
   }
 };
 
+
+// get all submissions data for admin
 const get_submissions_data=async (req,res)=>{
   try {
-    // Example query to fetch submissions data
+ 
     const submissions = await Submission.find() 
-
-    // Example response structure
     res.status(200).json({
       success: true,
       data: submissions
@@ -124,6 +126,8 @@ const get_submissions_data=async (req,res)=>{
 };
 
 
+
+// get all users data for admin
 const get_users_data=async (req,res)=>{
   try {
     const users = await User.find({},['-profilePicture','-password']) 
@@ -140,6 +144,7 @@ const get_users_data=async (req,res)=>{
   }
 }
 
+// get all problems data for admin
 const get_problems_data=async(req,res)=>{
   try {
     const questions = await Question.find({},['-profilePicture','-password']) 
@@ -156,6 +161,7 @@ const get_problems_data=async(req,res)=>{
   }
 }
 
+// delete question for admin (exclusive)
 const delete_question=async (req,res)=>{
   const id = req.params.id;
 

@@ -1,4 +1,5 @@
 const Question = require("../models/question_model");
+const User=require("../models/user_model")
 const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
@@ -6,9 +7,10 @@ const Submission = require("../models/submission_model");
 const { S3Client, PutObjectCommand,GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const dotenv = require('dotenv');
+const fetch=require("node-fetch")
 dotenv.config();
-const User=require("../models/user_model")
 
+// get all problems
 const allproblems_get = (req, res) => {
   const userid=req.params.userid;
 
@@ -29,7 +31,7 @@ const allproblems_get = (req, res) => {
   
 };
 
-
+// get single problem
 const singleproblem_get = (req, res) => {
   const id = req.params.id;
   Question.findById(id)
@@ -44,7 +46,7 @@ const singleproblem_get = (req, res) => {
 
 
 
-
+//S3 client for file upload
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -53,6 +55,7 @@ const s3Client = new S3Client({
   },
 });
 
+// add problem
 const addproblem_post = async (req, res) => {
   try {
     const { title, description, difficulty, constraints, inputFormat, outputFormat, sampleTestCases, topicTags, companyTags,userid } = req.body;
@@ -113,7 +116,7 @@ const addproblem_post = async (req, res) => {
 };
 
 
-
+// run problem
 const runproblem_post = (req, res) => {
   const { code, language, input } = req.body;
 
@@ -182,7 +185,6 @@ function executeCode(command, inputFilePath, tempCodeFilePath, res) {
     ? { input: fs.readFileSync(inputFilePath) }
     : {};
   const childProcess = exec(command, options, (error, stdout, stderr) => {
-    // Clean up the temporary files
     if (fs.existsSync(tempCodeFilePath)) fs.unlinkSync(tempCodeFilePath);
     if (
       command.includes(".out") &&
@@ -211,6 +213,8 @@ function executeCode(command, inputFilePath, tempCodeFilePath, res) {
   }
 }
 
+
+// submit problem
 const submit_post = async (req, res) => {
   const { questionId, userId, language } = req.body;
   
@@ -220,7 +224,7 @@ const submit_post = async (req, res) => {
     if (!question) {
       return res.status(404).json({ error: "Question not found" });
     }
-
+    console.log(process.env.AWS_BUCKET_NAME)
     const inputFileKey = question.inputFile; 
     const outputFileKey = question.outputFile; 
 
@@ -421,11 +425,9 @@ const calculateScore = async (userId) => {
 
       if (verdict === 'Pass') {
         if (!solvedQuestions.has(questionId)) {
-          // Add score for correct submission and increment problemsSolved
+         
           score += questionPoints[question.difficulty];
           problemsSolved += 1;
-
-          // Deduct the accumulated penalties for incorrect submissions if any
           if (questionDeductions[questionId]) {
             score += questionDeductions[questionId];
             delete questionDeductions[questionId];
@@ -435,7 +437,6 @@ const calculateScore = async (userId) => {
         }
       } else {
         if (!solvedQuestions.has(questionId)) {
-          // Track deductions for the question
           if (!questionDeductions[questionId]) {
             questionDeductions[questionId] = 0;
           }
@@ -462,8 +463,6 @@ const calculateAllUserScores = async () => {
         problemsSolved: problemsSolved
       };
     }));
-
-    // Sort users by score in descending order
     userScores.sort((a, b) => b.score - a.score);
 
     return userScores;

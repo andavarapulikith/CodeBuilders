@@ -6,6 +6,7 @@ import Editor from "@monaco-editor/react";
 import { ClipLoader } from "react-spinners";
 import {toast} from 'sonner';
 import Navbar from "./Navbar";
+import { backendurl } from "../backendurl";
 const SingleProblemPage = () => {
   const [language, setLanguage] = useState("python");
   const [problem, setProblem] = useState(null);
@@ -29,7 +30,7 @@ const SingleProblemPage = () => {
   const runCode = () => {
     setLoading(true); // Set loading state to true
     axios
-      .post("http://localhost:5000/coding/runproblem", { code, language, input })
+      .post(`${backendurl}/coding/runproblem`, { code, language, input })
       .then((res) => {
         if (res.data.output !== "") {
           setOutput(res.data.output);
@@ -55,7 +56,7 @@ const SingleProblemPage = () => {
     setSubmitted(true);
     let userId = authData.authData.user._id;
     axios
-      .post("http://localhost:5000/coding/submit", {
+      .post(`${backendurl}/coding/submit`, {
         questionId: id,
         userId,
         code,
@@ -87,7 +88,7 @@ const SingleProblemPage = () => {
     const fetchProblem = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/coding/getproblem/${id}`
+          `${backendurl}/coding/getproblem/${id}`
         );
         setProblem(response.data.question);
       } catch (error) {

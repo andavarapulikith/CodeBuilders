@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../providers/authProvider";
 import { ClipLoader } from "react-spinners";
 import Navbar from "./Navbar";
+import { backendurl } from "../backendurl";
 const AllProblemsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [problemsPerPage] = useState(7);
@@ -22,7 +23,7 @@ const AllProblemsPage = () => {
         if (authData.authData) userid = authData.authData.user._id;
         if (userid !== undefined) {
           const response = await axios.get(
-            "http://localhost:5000/coding/allproblems/" + userid
+            `${backendurl}/coding/allproblems/` + userid
           );
           setProblems(response.data.questions);
           setSolvedProblems(response.data.solvedQuestions);

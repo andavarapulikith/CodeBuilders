@@ -4,26 +4,22 @@ const Admin=require("../models/admin_model")
 const jwt=require('jsonwebtoken');
 const dotenv=require('dotenv');
 dotenv.config();
+
+// check user login
 const login_post = (req, res) => {
     const { email, password } = req.body;
-
-    // Function to find user by email and return a promise
     const findUser = (model) => {
         return model.findOne({ email });
     };
-
-    // Check if user exists in User collection
     findUser(User).then((user) => {
         if (user) {
-            // User found, compare passwords
             bcrypt.compare(password, user.password).then((match) => {
                 if (match) {
-                    // Passwords match, generate user token
                     const token = jwt.sign(
                         {
                             email: user.email,
                             _id: user._id,
-                            role: 'user' // Example role for user
+                            role: 'user' 
                         },
                         process.env.secretkey,
                         {
@@ -32,7 +28,6 @@ const login_post = (req, res) => {
                     );
                     res.status(200).json({ success: true, message: "User login successful", user, token,role:"user"});
                 } else {
-                    // Passwords do not match
                     res.status(401).json({ success: false, message: "Invalid credentials" });
                 }
             }).catch((err) => {
@@ -61,12 +56,10 @@ const login_post = (req, res) => {
                             res.status(200).json({ success: true, message: "Admin login successful", user:admin, token,role:"admin"});
                         }
                          else {
-                            // Passwords do not match
                             res.status(401).json({ success: false, message: "Invalid credentials" });
                         
                     }
                 } else {
-                    // Neither user nor admin found
                     res.status(404).json({ message: "User or admin not found" });
                 }
             }).catch((err) => {
@@ -80,6 +73,8 @@ const login_post = (req, res) => {
     });
 };
 
+
+// register user
 const signup_post=(req,res)=>{
     const {username, email, password,contact}=req.body;
     const hashedpassword=bcrypt.hashSync(password, 10);
@@ -105,5 +100,5 @@ const profile_get=(req,res)=>{
         res.status(500).json({message:"Error finding user"});
     })
 }
+
 module.exports={login_post,signup_post,profile_get}
-//222338024006-flu5vidcjhlea24dq960s1ii70mdfdf3.apps.googleusercontent.com

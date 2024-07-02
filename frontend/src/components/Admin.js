@@ -3,7 +3,7 @@ import Chart from "chart.js/auto";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
-
+import { backendurl } from "../backendurl";
 const AdminDashboard = () => {
   const difficultyChartRef = useRef(null);
   const submissionChartRef = useRef(null);
@@ -36,7 +36,7 @@ const AdminDashboard = () => {
     const fetchData = async () => {
         setLoading(true);
       try {
-        const response = await axios.get("http://localhost:5000/admin");
+        const response = await axios.get(`${backendurl}/admin`);
         const data = response.data;
 
         setTotalQuestions(data.totalQuestions);

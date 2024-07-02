@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
+import { backendurl } from "../backendurl";
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,7 +17,7 @@ const UsersPage = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/admin/users?page=${currentPage}&limit=${usersPerPage}`
+        `${backendurl}/admin/users?page=${currentPage}&limit=${usersPerPage}`
       );
       if (response.data.success) {
         setUsers(response.data.data);

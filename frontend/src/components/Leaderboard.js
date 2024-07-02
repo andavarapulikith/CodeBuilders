@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from "../providers/authProvider";
 import Navbar from './Navbar';
-
+import { backendurl } from '../backendurl';
 const LeaderboardPage = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -12,7 +12,7 @@ const LeaderboardPage = () => {
   useEffect(() => {
     const fetchScores = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/coding/getscores');
+        const response = await axios.get(`${backendurl}/coding/getscores`);
         const userScores = response.data.userScores;
         
         // Add rank to each user
