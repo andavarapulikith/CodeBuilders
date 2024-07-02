@@ -10,10 +10,6 @@ const connectionParams = {
 const connectDB = async () => {
   try {
     await mongoose.connect(uri, connectionParams);
-  
-    
-    // Save admin to MongoDB
-   
     console.log("Connected to MongoDB Atlas");
   } catch (err) {
     console.error("Error connecting to MongoDB Atlas:", err);

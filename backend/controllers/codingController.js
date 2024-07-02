@@ -224,9 +224,10 @@ const submit_post = async (req, res) => {
     if (!question) {
       return res.status(404).json({ error: "Question not found" });
     }
-    console.log(process.env.AWS_BUCKET_NAME)
     const inputFileKey = question.inputFile; 
     const outputFileKey = question.outputFile; 
+    question.submissionsCount+=1;
+    await question.save();
 
     const code = req.body.code; 
     const inputUrl = await getObjectURL(inputFileKey);
@@ -471,11 +472,7 @@ const calculateAllUserScores = async () => {
     return [];
   }
 };
-calculateAllUserScores().then(userScores => {
-  console.log('User scores:', userScores);
-}).catch(error => {
-  console.error('Error:', error);
-});
+
 
 const get_scores=async(req,res)=>{
   try {

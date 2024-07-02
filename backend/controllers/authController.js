@@ -81,7 +81,7 @@ const signup_post=(req,res)=>{
     
     const user=new User({username, email, password:hashedpassword, contact_number:contact});
     user.save({username, email, password:hashedpassword, contact_number:contact}).then((result)=>{
-        console.log(result);
+        // console.log(result);
         res.json({message:"User registered successfully"});
     }).catch((err)=>{
         console.log(err);
@@ -93,7 +93,7 @@ const profile_get=(req,res)=>{
     const id=req.params.id;
     
     User.findById(id).then((user)=>{
-        console.log(user)
+        // console.log(user)
         res.json({user});
     }).catch((err)=>{
         console.log(err);

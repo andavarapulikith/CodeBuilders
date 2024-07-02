@@ -80,9 +80,7 @@ const upload = multer({
 });
 
 router.get(
-  "/allproblems/:userid",
-  verifyToken,
-  codingController.allproblems_get
+  "/allproblems/:userid",codingController.allproblems_get
 );
 router.get("/getproblem/:id", codingController.singleproblem_get);
 router.post(
