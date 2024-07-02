@@ -9,7 +9,15 @@ const adminRoutes=require('./routes/adminroutes');
 const Admin=require("./models/admin_model")
 
 connectDB();
-app.use(cors());
+const allowedOrigins = ['https://code-builders.vercel.app', 'http://localhost:3000'];
+
+const corsOptions = {
+  origin:allowedOrigins ,
+  methods: ['GET', 'POST', 'PUT','HEAD', 'DELETE'],
+  credentials: true 
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const db=require('./db');
