@@ -19,14 +19,16 @@ const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (user, token) => {
+  const login = async (user, token,role) => {
    
     const expiration = new Date();
     expiration.setTime(expiration.getTime() + (24 * 60 * 60 * 1000)); 
   
     Cookies.set('token', token, { expires: expiration });
     Cookies.set('user', JSON.stringify(user), { expires: expiration });
-    setAuthData({ user, token });
+    Cookies.set('role',role,{expires:expiration})
+    setAuthData({ user, token,role });
+    
     axios.defaults.headers.common['Authorization'] = token; 
   };
   
@@ -34,6 +36,7 @@ const AuthProvider = ({ children }) => {
   const logout = () => {
     Cookies.remove('token');
     Cookies.remove('user');
+    Cookies.remove('role')
     setAuthData(null);
     delete axios.defaults.headers.common['Authorization'];
   };

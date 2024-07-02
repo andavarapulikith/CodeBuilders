@@ -47,9 +47,10 @@ function Login() {
           return;
         }
         
-        const { user, token } = response.data;
+        const { user, token,role } = response.data;
+        console.log(role)
         
-        login(user, token);
+        login(user, token,role);
         toast.success('Login successful');
         navigate("/allproblems");
       } catch (error) {

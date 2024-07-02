@@ -6,4 +6,6 @@ router.post('/signup', authController.signup_post);
 
 router.get('/profile/:id', verifyToken, authController.profile_get);
 
+
+
 module.exports=router;

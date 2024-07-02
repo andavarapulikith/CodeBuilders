@@ -1,36 +1,78 @@
 const bcrypt = require('bcryptjs');
 const User=require('../models/user_model');
+const Admin=require("../models/admin_model")
 const jwt=require('jsonwebtoken');
 const dotenv=require('dotenv');
 dotenv.config();
 const login_post = (req, res) => {
     const { email, password } = req.body;
-   
 
-    User.findOne({ email }).then((user) => {
+    // Function to find user by email and return a promise
+    const findUser = (model) => {
+        return model.findOne({ email });
+    };
+
+    // Check if user exists in User collection
+    findUser(User).then((user) => {
         if (user) {
+            // User found, compare passwords
             bcrypt.compare(password, user.password).then((match) => {
                 if (match) {
+                    // Passwords match, generate user token
                     const token = jwt.sign(
                         {
                             email: user.email,
-                            _id: user._id
+                            _id: user._id,
+                            role: 'user' // Example role for user
                         },
                         process.env.secretkey,
                         {
                             expiresIn: "24h"
                         }
                     );
-                    res.status(200).json({success:true, message: "Form submitted successfully", user,token });
+                    res.status(200).json({ success: true, message: "User login successful", user, token,role:"user"});
                 } else {
-                    res.status(401).json({success:false, message: "Invalid credentials" });
+                    // Passwords do not match
+                    res.status(401).json({ success: false, message: "Invalid credentials" });
                 }
             }).catch((err) => {
                 console.log(err);
                 res.status(500).json({ message: "Error comparing passwords" });
             });
         } else {
-            res.status(404).json({ message: "User not found" });
+          
+            findUser(Admin).then((admin) => {
+                if (admin) {
+                    
+                    if(password===admin.password) {
+                        
+                          
+                            const token = jwt.sign(
+                                {
+                                    email: admin.email,
+                                    _id: admin._id,
+                                    role: 'admin' 
+                                },
+                                process.env.secretkey,
+                                {
+                                    expiresIn: "24h"
+                                }
+                            );
+                            res.status(200).json({ success: true, message: "Admin login successful", user:admin, token,role:"admin"});
+                        }
+                         else {
+                            // Passwords do not match
+                            res.status(401).json({ success: false, message: "Invalid credentials" });
+                        
+                    }
+                } else {
+                    // Neither user nor admin found
+                    res.status(404).json({ message: "User or admin not found" });
+                }
+            }).catch((err) => {
+                console.log(err);
+                res.status(500).json({ message: "Error finding admin" });
+            });
         }
     }).catch((err) => {
         console.log(err);

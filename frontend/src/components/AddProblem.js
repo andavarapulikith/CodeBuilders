@@ -5,8 +5,9 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { Link } from "react-router-dom";
+import Navbar from './Navbar';
 window.katex = katex;
+
 
 const AddProblemPage = () => {
   const [problemData, setProblemData] = useState({
@@ -24,7 +25,7 @@ const AddProblemPage = () => {
   });
 
   const authData = useContext(AuthContext);
-  const isLoggedIn = authData !== null;
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -132,41 +133,8 @@ const AddProblemPage = () => {
 
   return (
     <>
-      <nav className="bg-yellow-200 text-yellow-600 shadow-md">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="text-xl font-bold">
-            Codebuilders
-          </Link>
-          <ul className="flex space-x-4">
-            <li>
-              <Link to="/" className="hover:text-yellow-300">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to={isLoggedIn ? '/allproblems' : '/login'} className="hover:text-yellow-300">
-                All problems
-              </Link>
-            </li>
-            <li>
-              <Link to={isLoggedIn ? '/leaderboard' : '/login'} className="hover:text-yellow-300">
-                Leaderboard
-              </Link>
-            </li>
-            <li>
-              <Link to="/texteditor" className="hover:text-yellow-300">
-                TextEditor
-              </Link>
-            </li>
-            <li>
-              <Link to="/ide" className="hover:text-yellow-300">
-                Online IDE
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
+     
+      <Navbar/>
       <div className="container mx-auto px-4 py-8 ">
         <h1 className="text-4xl font-bold mb-6 text-yellow-800">Add a New Problem</h1>
         <form onSubmit={handleSubmit} encType='multipart/form-data'  className="p-6 rounded shadow-md">

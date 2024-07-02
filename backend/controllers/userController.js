@@ -2,14 +2,76 @@ const Submission = require('../models/submission_model');
 const Question=require('../models/question_model');
 const User=require('../models/user_model');
 
+
+const calculateScore = async (userId) => {
+    try {
+      const submissions = await Submission.find({ userid: userId }).populate('questionid');
+      let score = 0;
+      let problemsSolved = 0;
+      const solvedQuestions = new Set();
+      const questionPoints = {
+        easy: 50,
+        medium: 100,
+        hard: 150
+      };
+      const deductionPoints = {
+        easy: -2,
+        medium: -5,
+        hard: -8
+      };
+  
+      const questionDeductions = {};
+  
+      submissions.forEach(submission => {
+        const { questionid: question, verdict } = submission;
+        const questionId = question._id.toString();
+  
+        if (verdict === 'Pass') {
+          if (!solvedQuestions.has(questionId)) {
+            // Add score for correct submission and increment problemsSolved
+            score += questionPoints[question.difficulty];
+            problemsSolved += 1;
+  
+            // Deduct the accumulated penalties for incorrect submissions if any
+            if (questionDeductions[questionId]) {
+              score += questionDeductions[questionId];
+              delete questionDeductions[questionId];
+            }
+  
+            solvedQuestions.add(questionId);
+          }
+        } else {
+          if (!solvedQuestions.has(questionId)) {
+            // Track deductions for the question
+            if (!questionDeductions[questionId]) {
+              questionDeductions[questionId] = 0;
+            }
+            questionDeductions[questionId] += deductionPoints[question.difficulty];
+          }
+        }
+      });
+  
+      return { score, problemsSolved };
+    } catch (error) {
+      console.error('Error calculating score:', error);
+      return { score: 0, problemsSolved: 0 };
+    }
+  };
+
 const get_user=async (req,res)=>{
     try {
         const userId = req.params.id;
        
         const user = await User.findById(userId).select('-password');
+       
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        let data=await calculateScore(userId);
+        
+        user.score=data.score;
+       
         res.status(200).json(user);
     } catch (error) {
         console.error(error);
@@ -21,28 +83,15 @@ const get_user=async (req,res)=>{
 const get_submissions=async (req,res)=>{
     try {
         const userId = req.params.id;
-        
-        // Fetch all submissions for the user
         const submissions = await Submission.find({ userid: userId });
-
-        // Initialize counters for easy, medium, and hard questions
         let easyCount = 0;
         let mediumCount = 0;
         let hardCount = 0;
-
-        // Prepare array to store processed submissions
         const submissionsData = [];
-
-        // Track already counted questionIds and their verdicts
         const countedQuestionIds = new Map();
-
-        // Process each submission to fetch question details
         for (const submission of submissions) {
-            // Find question details by questionid
             const question = await Question.findById(submission.questionid);
-
             if (question && submission.verdict === 'Pass' && !countedQuestionIds.has(question._id.toString())) {
-                // Count question difficulty
                 if (question.difficulty === 'easy') {
                     easyCount++;
                 } else if (question.difficulty === 'medium') {
@@ -56,13 +105,13 @@ const get_submissions=async (req,res)=>{
                 // Add processed submission data
                 submissionsData.push({
                     date: submission.createdAt,
+                    code:submission.code,
                     problem: question.title,
                     difficulty: question.difficulty,
                     language: submission.language,
                     verdict: submission.verdict
                 });
 
-                // Mark question as counted
                
             
         }

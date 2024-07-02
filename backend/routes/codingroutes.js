@@ -90,4 +90,6 @@ router.post("/runproblem", verifyToken, codingController.runproblem_post);
 
 router.post("/submit", verifyToken, codingController.submit_post);
 
+router.get("/getscores",codingController.get_scores)
+
 module.exports = router;

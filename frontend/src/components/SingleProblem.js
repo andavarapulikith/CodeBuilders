@@ -5,7 +5,7 @@ import { AuthContext } from "../providers/authProvider";
 import Editor from "@monaco-editor/react";
 import { ClipLoader } from "react-spinners";
 import {toast} from 'sonner';
-
+import Navbar from "./Navbar";
 const SingleProblemPage = () => {
   const [language, setLanguage] = useState("python");
   const [problem, setProblem] = useState(null);
@@ -21,7 +21,7 @@ const SingleProblemPage = () => {
   var isloggedin = false;
   const authData = useContext(AuthContext);
   if (authData.authData) isloggedin = true;
-
+  console.log(authData.authData.user._id)
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
   };
@@ -104,47 +104,8 @@ const SingleProblemPage = () => {
 
   return (
     <>
-      <nav className="bg-yellow-200 text-yellow-600 shadow-md">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="text-xl font-bold">
-            Codebuilders
-          </Link>
-          <ul className="flex space-x-4">
-            <li>
-              <Link to="/" className="hover:text-yellow-300">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={isloggedin ? "/allproblems" : "/login"}
-                className="hover:text-yellow-300"
-              >
-                All problems
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={isloggedin ? "/leaderboard" : "/login"}
-                className="hover:text-yellow-300"
-              >
-                Leaderboard
-              </Link>
-            </li>
-            <li>
-              <Link to="/texteditor" className="hover:text-yellow-300">
-                TextEditor
-              </Link>
-            </li>
-            <li>
-              <Link to="/ide" className="hover:text-yellow-300">
-                Online IDE
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
+      
+      <Navbar></Navbar>
       <div className="w-screen h-screen overflow-hidden">
         <div className="flex flex-col md:flex-row h-full">
           <div className="w-full md:w-1/2 h-full overflow-auto bg-white p-6">

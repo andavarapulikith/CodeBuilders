@@ -11,6 +11,10 @@ import UserProfile from './components/Profile';
 import IDE from './components/IDE';
 import AddProblemPage from './components/AddProblem';
 import TextEditor from './components/TextEditor';
+import AdminDashboard from './components/Admin';
+import SubmissionsPage from './components/Allsubmissions';
+import UsersPage from './components/AllUsers';
+import AllQuestionsPage from './components/AllQuestions';
 function App() {
   const router=createBrowserRouter(
     [{
@@ -48,6 +52,18 @@ function App() {
     },{
       path:'/texteditor',
       element:<TextEditor></TextEditor>
+    },{
+      path:'/admin',
+      element:<AdminDashboard></AdminDashboard>
+    },{
+      path:'/allsubmissions',
+      element:<SubmissionsPage></SubmissionsPage>
+    },{
+      path:'/allusers',
+      element:<UsersPage></UsersPage>
+    },{
+      path:'/allquestions',
+      element:<AllQuestionsPage></AllQuestionsPage>
     }
 
     ]

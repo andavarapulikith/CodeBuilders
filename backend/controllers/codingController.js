@@ -7,6 +7,7 @@ const { S3Client, PutObjectCommand,GetObjectCommand } = require('@aws-sdk/client
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const dotenv = require('dotenv');
 dotenv.config();
+const User=require("../models/user_model")
 
 const allproblems_get = (req, res) => {
   const userid=req.params.userid;
@@ -395,7 +396,97 @@ function compareOutput(
     childProcess.stdin.end();
   }
 }
+const calculateScore = async (userId) => {
+  try {
+    const submissions = await Submission.find({ userid: userId }).populate('questionid');
+    let score = 0;
+    let problemsSolved = 0;
+    const solvedQuestions = new Set();
+    const questionPoints = {
+      easy: 50,
+      medium: 100,
+      hard: 150
+    };
+    const deductionPoints = {
+      easy: -2,
+      medium: -5,
+      hard: -8
+    };
 
+    const questionDeductions = {};
+
+    submissions.forEach(submission => {
+      const { questionid: question, verdict } = submission;
+      const questionId = question._id.toString();
+
+      if (verdict === 'Pass') {
+        if (!solvedQuestions.has(questionId)) {
+          // Add score for correct submission and increment problemsSolved
+          score += questionPoints[question.difficulty];
+          problemsSolved += 1;
+
+          // Deduct the accumulated penalties for incorrect submissions if any
+          if (questionDeductions[questionId]) {
+            score += questionDeductions[questionId];
+            delete questionDeductions[questionId];
+          }
+
+          solvedQuestions.add(questionId);
+        }
+      } else {
+        if (!solvedQuestions.has(questionId)) {
+          // Track deductions for the question
+          if (!questionDeductions[questionId]) {
+            questionDeductions[questionId] = 0;
+          }
+          questionDeductions[questionId] += deductionPoints[question.difficulty];
+        }
+      }
+    });
+
+    return { score, problemsSolved };
+  } catch (error) {
+    console.error('Error calculating score:', error);
+    return { score: 0, problemsSolved: 0 };
+  }
+};
+
+const calculateAllUserScores = async () => {
+  try {
+    const users = await User.find();
+    const userScores = await Promise.all(users.map(async (user) => {
+      const {score,problemsSolved} = await calculateScore(user._id);
+      return {
+        user: user.username,
+        score: score,
+        problemsSolved: problemsSolved
+      };
+    }));
+
+    // Sort users by score in descending order
+    userScores.sort((a, b) => b.score - a.score);
+
+    return userScores;
+  } catch (error) {
+    console.error('Error calculating scores for all users:', error);
+    return [];
+  }
+};
+calculateAllUserScores().then(userScores => {
+  console.log('User scores:', userScores);
+}).catch(error => {
+  console.error('Error:', error);
+});
+
+const get_scores=async(req,res)=>{
+  try {
+    const userScores = await calculateAllUserScores();
+    res.json({ userScores });
+  } catch (error) {
+    console.error('Error fetching user scores:', error);
+    res.status(500).json({ error: 'Failed to fetch user scores' });
+  }
+}
 
 module.exports = {
   allproblems_get,
@@ -403,4 +494,5 @@ module.exports = {
   addproblem_post,
   runproblem_post,
   submit_post,
+  get_scores
 };

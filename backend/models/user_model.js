@@ -26,7 +26,7 @@ const userSchema= new mongoose.Schema({
         type:String,
         default:""
     },
-    rank:{
+    score:{
         type:Number,
         default:0
     },

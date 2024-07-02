@@ -3,20 +3,20 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../providers/authProvider";
 import { ClipLoader } from "react-spinners";
-import Navbar from './Navbar'
+import Navbar from "./Navbar";
 const AllProblemsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [problemsPerPage] = useState(7);
   const [problems, setProblems] = useState([]);
   const [solvedProblems, setSolvedProblems] = useState([]);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false); 
   const authData = useContext(AuthContext);
 
   const isloggedin = authData.authData ? true : false;
 
   useEffect(() => {
     const fetchProblems = async () => {
-      setLoading(true); // Set loading to true before fetching
+      setLoading(true); 
       try {
         let userid;
         if (authData.authData) userid = authData.authData.user._id;
@@ -26,12 +26,11 @@ const AllProblemsPage = () => {
           );
           setProblems(response.data.questions);
           setSolvedProblems(response.data.solvedQuestions);
-          console.log(response.data.solvedQuestions);
         }
       } catch (error) {
         console.error("Error fetching problems:", error);
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false); 
       }
     };
 
@@ -49,8 +48,7 @@ const AllProblemsPage = () => {
 
   return (
     <>
-      
-      <Navbar/>
+      <Navbar />
       <div className="container mx-auto px-6 py-12 pt-20">
         {loading ? (
           <div className="text-white text-center mt-4">
