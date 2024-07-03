@@ -24,6 +24,11 @@ const Navbar = () => {
             </Link>
           </li>
           <li>
+            <Link to={isLoggedIn ? '/contest' : '/login'} className="hover:text-yellow-300 font-semibold">
+              Contest
+            </Link>
+          </li>
+          <li>
             <Link to={isLoggedIn ? '/leaderboard' : '/login'} className="hover:text-yellow-300 font-semibold">
               Leaderboard
             </Link>

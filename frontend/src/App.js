@@ -15,6 +15,7 @@ import AdminDashboard from './components/Admin';
 import SubmissionsPage from './components/Allsubmissions';
 import UsersPage from './components/AllUsers';
 import AllQuestionsPage from './components/AllQuestions';
+import ContestPage from './components/ContestPage';
 function App() {
   const router=createBrowserRouter(
     [{
@@ -64,6 +65,9 @@ function App() {
     },{
       path:'/allquestions',
       element:<AllQuestionsPage></AllQuestionsPage>
+    },{
+      path:'/contest',
+      element:<ContestPage></ContestPage>
     }
 
     ]
