@@ -484,11 +484,24 @@ const get_scores=async(req,res)=>{
   }
 }
 
+const user_submissions_get=async (req,res)=>{
+  
+  const { questionid, userid } = req.params;
+  console.log(questionid,userid)
+  try {
+    const submissions = await Submission.find({ questionid: questionid, userid: userid });
+    res.status(200).json({ submissions });
+  } catch (error) {
+    console.error('Error fetching user submissions:', error);
+    res.status(500).json({ error: 'Failed to fetch user submissions' });
+  }
+}
+
 module.exports = {
   allproblems_get,
   singleproblem_get,
   addproblem_post,
   runproblem_post,
   submit_post,
-  get_scores
+  get_scores,user_submissions_get
 };

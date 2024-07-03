@@ -4,9 +4,10 @@ import { useParams, Link } from "react-router-dom";
 import { AuthContext } from "../providers/authProvider";
 import Editor from "@monaco-editor/react";
 import { ClipLoader } from "react-spinners";
-import {toast} from 'sonner';
+import { toast } from "sonner";
 import Navbar from "./Navbar";
 import { backendurl } from "../backendurl";
+import SubmissionModal from "./SubmissionModal"; // Import the SubmissionModal component
 
 const SingleProblemPage = () => {
   const [language, setLanguage] = useState("python");
@@ -19,7 +20,9 @@ const SingleProblemPage = () => {
   const [submittedOutput, setSubmittedOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
+  const [userSubmissions, setUserSubmissions] = useState([]);
+  const [viewMode, setViewMode] = useState("problem");
+  const [selectedSubmission, setSelectedSubmission] = useState(null); // State for selected submission
   const authData = useContext(AuthContext);
   const isloggedin = authData.authData ? true : false;
 
@@ -81,7 +84,20 @@ const SingleProblemPage = () => {
       })
       .finally(() => {
         setSubmitted(false);
+        fetchUserSubmissions(); // Refresh user submissions after submission
       });
+  };
+
+  const fetchUserSubmissions = async () => {
+    const userId = authData.authData?.user._id;
+    try {
+      const response = await axios.get(
+        `${backendurl}/coding/usersubmissions/${id}/${userId}`
+      );
+      setUserSubmissions(response.data.submissions);
+    } catch (error) {
+      console.error("Error fetching user submissions:", error);
+    }
   };
 
   useEffect(() => {
@@ -97,98 +113,200 @@ const SingleProblemPage = () => {
     };
 
     fetchProblem();
-  }, [id]);
+    if (isloggedin) {
+      fetchUserSubmissions();
+    }
+  }, [id, isloggedin]);
 
-  if (!problem) {
-    return <div>Loading...</div>;
-  }
+  const toggleViewMode = (mode) => {
+    setViewMode(mode);
+  };
+
+  const openSubmissionModal = (submission) => {
+    setSelectedSubmission(submission);
+  };
+
+  const closeSubmissionModal = () => {
+    setSelectedSubmission(null);
+  };
 
   return (
     <>
       <Navbar />
-      {isloggedin ? (
+      {isloggedin && problem ? (
         <div className="w-screen h-screen overflow-hidden">
           <div className="flex flex-col md:flex-row h-full">
             <div className="w-full md:w-1/2 h-full overflow-auto bg-white p-6">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                {problem.title}
-              </h2>
+              <div className="flex items-center justify-between mb-4 mr-4">
+                <h2 className="text-3xl font-bold text-gray-800">
+                  {problem.title}
+                </h2>
+                <h2
+                  className={`px-2 py-1 font-bold text-xl rounded ${
+                    problem.difficulty === "easy"
+                      ? "bg-green-100 text-green-800"
+                      : problem.difficulty === "medium"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : problem.difficulty === "hard"
+                      ? "bg-red-100 text-red-800"
+                      : ""
+                  }`}
+                >
+                  {problem.difficulty}
+                </h2>
+              </div>
+
               <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Description
-                </h3>
-                <div
-                  dangerouslySetInnerHTML={{ __html: problem.description }}
-                ></div>
+                <div className="flex justify-between mb-4">
+                  <button
+                    onClick={() => toggleViewMode("problem")}
+                    className={`px-4 py-2 rounded-lg ${
+                      viewMode === "problem"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    Problem
+                  </button>
+                  <button
+                    onClick={() => toggleViewMode("submissions")}
+                    className={`px-4 py-2 rounded-lg ${
+                      viewMode === "submissions"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    Submissions
+                  </button>
+                </div>
 
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Constraints
-                </h3>
-                <div
-                  dangerouslySetInnerHTML={{ __html: problem.constraints }}
-                ></div>
-
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Input Format
-                </h3>
-                <div
-                  dangerouslySetInnerHTML={{ __html: problem.inputFormat }}
-                ></div>
-
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Output Format
-                </h3>
-                <div
-                  dangerouslySetInnerHTML={{ __html: problem.outputFormat }}
-                ></div>
-
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Sample Test Cases
-                </h3>
-                {problem.sampleTestCases &&
-                  problem.sampleTestCases.map((testCase) => (
+                {viewMode === "problem" && (
+                  <>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      Description
+                    </h3>
                     <div
-                      key={testCase._id}
-                      className="bg-gray-100 p-4 rounded-lg mb-4"
-                    >
-                      <p className="text-gray-600 mb-2">
-                        <strong>Input:</strong>
-                      </p>
-                      <p className="text-gray-600 mb-2">
-                        {testCase.input.split("\n").map((line, index) => (
-                          <React.Fragment key={index}>
-                            {line}
-                            <br />
-                          </React.Fragment>
-                        ))}
-                      </p>
-                      <p className="text-gray-600">
-                        <strong>Output:</strong>
-                      </p>
-                      <p className="text-gray-600 mb-2">
-                        {testCase.output.split("\n").map((line, index) => (
-                          <React.Fragment key={index}>
-                            {line}
-                            <br />
-                          </React.Fragment>
-                        ))}
-                      </p>
-                    </div>
-                  ))}
+                      dangerouslySetInnerHTML={{ __html: problem.description }}
+                    ></div>
 
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Topic Tags
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  {problem.topicTags ? problem.topicTags.join(", ") : ""}
-                </p>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      Constraints
+                    </h3>
+                    <div
+                      dangerouslySetInnerHTML={{ __html: problem.constraints }}
+                    ></div>
 
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Company Tags
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  {problem.companyTags ? problem.companyTags.join(", ") : ""}
-                </p>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      Input Format
+                    </h3>
+                    <div
+                      dangerouslySetInnerHTML={{ __html: problem.inputFormat }}
+                    ></div>
+
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      Output Format
+                    </h3>
+                    <div
+                      dangerouslySetInnerHTML={{ __html: problem.outputFormat }}
+                    ></div>
+
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      Sample Test Cases
+                    </h3>
+                    {problem.sampleTestCases &&
+                      problem.sampleTestCases.map((testCase) => (
+                        <div
+                          key={testCase._id}
+                          className="bg-gray-100 p-4 rounded-lg mb-4"
+                        >
+                          <p className="text-gray-600 mb-2">
+                            <strong>Input:</strong>
+                          </p>
+                          <p className="text-gray-600 mb-2">
+                            {testCase.input
+                              .split("\n")
+                              .map((line, index) => (
+                                <React.Fragment key={index}>
+                                  {line}
+                                  <br />
+                                </React.Fragment>
+                              ))}
+                          </p>
+                          <p className="text-gray-600">
+                            <strong>Output:</strong>
+                          </p>
+                          <p className="text-gray-600 mb-2">
+                            {testCase.output
+                              .split("\n")
+                              .map((line, index) => (
+                                <React.Fragment key={index}>
+                                  {line}
+                                  <br />
+                                </React.Fragment>
+                              ))}
+                          </p>
+                        </div>
+                      ))}
+
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      Topic Tags
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      {problem.topicTags ? problem.topicTags.join(", ") : ""}
+                    </p>
+
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      Company Tags
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      {problem.companyTags ? problem.companyTags.join(", ") : ""}
+                    </p>
+                  </>
+                )}
+
+                {viewMode === "submissions" && (
+                  <div className="mt-6">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                      Your Submissions
+                    </h3>
+                    {userSubmissions.length > 0 ? (
+                      userSubmissions.map((submission) => (
+                        <div
+                          key={submission._id}
+                          className="bg-gray-700 p-4 rounded-lg mb-4"
+                        >
+                          <p className="text-gray-300 mb-2">
+                            <strong>Date:</strong>{" "}
+                            {new Date(submission.createdAt).toLocaleString()}
+                          </p>
+                          <p className="text-gray-300 mb-2">
+                            <strong>Language:</strong> {submission.language}
+                          </p>
+                          <p className="text-gray-300 mb-2">
+                            <strong>Verdict:</strong>{" "}
+                            <span
+                              className={`font-semibold ${
+                                submission.verdict === "Pass"
+                                  ? "text-green-400"
+                                  : "text-red-400"
+                              }`}
+                            >
+                              {submission.verdict}
+                            </span>
+                          </p>
+                          <button
+                            onClick={() => openSubmissionModal(submission)} // Open modal on button click
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 mt-2"
+                          >
+                            View Code
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-300">No submissions yet.</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -286,20 +404,18 @@ const SingleProblemPage = () => {
           </div>
         </div>
       ) : (
-        <div className="w-full h-screen flex items-center justify-center">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h1 className="text-2xl font-semibold mb-4">Not Logged In</h1>
-            <p className="text-gray-600 mb-4">
-              Please log in to view this problem.
-            </p>
-            <Link
-              to="/login"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700"
-            >
-              Login
-            </Link>
-          </div>
+        <div className="text-white text-center mt-4 mr-auto ml-auto">
+          <ClipLoader color="#FFFFFF" size={60} />
         </div>
+      )}
+
+      {/* Modal for displaying submission code */}
+      {selectedSubmission && (
+        <SubmissionModal
+          isOpen={selectedSubmission !== null}
+          closeModal={closeSubmissionModal}
+          submission={selectedSubmission}
+        />
       )}
     </>
   );
