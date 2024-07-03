@@ -384,7 +384,9 @@ const SingleProblemPage = () => {
                 </>
               )}
 
-              {submittedOutput && (
+              {submitted ? <div className="text-white text-center mt-4 mr-auto ml-auto">
+          <ClipLoader color="#FFFFFF" size={60} />
+        </div>: submittedOutput && (
                 <>
                   <h3 className="text-xl font-semibold text-white mb-2">
                     Result
