@@ -10,11 +10,12 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = Cookies.get('token');
     const userData = Cookies.get('user');
+    const role=Cookies.get('role')
 
-    if (token && userData) {
+    if (token && userData && role) {
       const user = JSON.parse(userData);
       
-      setAuthData({ user, token });
+      setAuthData({ user, token,role });
       axios.defaults.headers.common['Authorization'] = token;
     }
   }, []);

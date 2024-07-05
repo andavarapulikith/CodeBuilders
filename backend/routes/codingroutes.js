@@ -23,10 +23,8 @@ const s3Client = new S3Client({
   },
 });
 
-// Define storage for files using multer memory storage
-const storage = multer.memoryStorage();
 
-// Initialize multer instance
+const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
   fileFilter: function (req, file, cb) {

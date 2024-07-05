@@ -42,19 +42,7 @@ const get_admin_data = async (req, res) => {
       { $sort: { "_id": 1 } },
     ]);
 
-    const formattedSubmissionStatistics = {
-      labels: submissionStatistics.map((stat) => stat._id),
-      datasets: [
-        {
-          label: "Submissions",
-          data: submissionStatistics.map((stat) => stat.count),
-          borderColor: "#3182CE",
-          backgroundColor: "rgba(49, 130, 206, 0.2)",
-          borderWidth: 2,
-          fill: true,
-        },
-      ],
-    };
+   
 
     const topRankers = await User.find()
       .sort({ rank: 1 })

@@ -50,12 +50,12 @@ const questionSchema = new mongoose.Schema({
   ],
   
   inputFile: {
-    type: String, // Path to the input file
-    required: false, // This can be optional if direct input is provided
+    type: String, 
+    required: false, 
   },
   outputFile: {
-    type: String, // Path to the output file
-    required: false, // This can be optional if direct output is provided
+    type: String, 
+    required: false, 
   },
   topicTags: [
     {
