@@ -16,6 +16,9 @@ import SubmissionsPage from './components/Allsubmissions';
 import UsersPage from './components/AllUsers';
 import AllQuestionsPage from './components/AllQuestions';
 import ContestPage from './components/ContestPage';
+import CreateAssignmentPage from './components/CreateAssignment';
+import AllAssignmentsPage from './components/Allassignments';
+import SingleAssignmentPage from './components/SingleAssignment';
 function App() {
   const router=createBrowserRouter(
     [{
@@ -66,8 +69,14 @@ function App() {
       path:'/allquestions',
       element:<AllQuestionsPage></AllQuestionsPage>
     },{
-      path:'/contest',
-      element:<ContestPage></ContestPage>
+      path:'/createassignment',
+      element:<CreateAssignmentPage></CreateAssignmentPage>
+    },{
+      path:'/allassignments',
+      element:<AllAssignmentsPage></AllAssignmentsPage>
+    },{
+      path:'/assignments/:id',
+      element:<SingleAssignmentPage></SingleAssignmentPage>
     }
 
     ]

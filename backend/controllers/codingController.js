@@ -487,7 +487,6 @@ const get_scores=async(req,res)=>{
 const user_submissions_get=async (req,res)=>{
   
   const { questionid, userid } = req.params;
-  console.log(questionid,userid)
   try {
     const submissions = await Submission.find({ questionid: questionid, userid: userid });
     res.status(200).json({ submissions });

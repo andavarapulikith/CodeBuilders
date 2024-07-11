@@ -6,10 +6,11 @@ const authroutes=require('./routes/authroutes');
 const codingroutes=require('./routes/codingroutes');
 const userRoutes=require('./routes/userroutes');
 const adminRoutes=require('./routes/adminroutes');
+const assignmentRoutes=require("./routes/assignmentroutes");
 const Admin=require("./models/admin_model")
 
 connectDB();
-const allowedOrigins = ['https://code-builders.vercel.app', 'http://localhost:3000'];
+const allowedOrigins = ['https://code-builders.vercel.app', 'http://localhost:3000','https://www.likith.online'];
 
 const corsOptions = {
   origin:allowedOrigins ,
@@ -26,6 +27,7 @@ app.use('/auth', authroutes);
 app.use("/coding",codingroutes);
 app.use("/user",userRoutes);
 app.use("/admin",adminRoutes);
+app.use("/assignments",assignmentRoutes)
 
 app.listen(5000, (req,res)=>{
     console.log('Server is running on port 5000')

@@ -5,19 +5,22 @@ import { AuthContext } from "../providers/authProvider";
 import { ClipLoader } from "react-spinners";
 import Navbar from "./Navbar";
 import { backendurl } from "../backendurl";
+
 const AllProblemsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [problemsPerPage] = useState(7);
   const [problems, setProblems] = useState([]);
   const [solvedProblems, setSolvedProblems] = useState([]);
-  const [loading, setLoading] = useState(false); 
-  const authData = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [difficultyFilter, setDifficultyFilter] = useState("");
+  const [keywordFilter, setKeywordFilter] = useState("");
 
+  const authData = useContext(AuthContext);
   const isloggedin = authData.authData ? true : false;
 
   useEffect(() => {
     const fetchProblems = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
         let userid;
         if (authData.authData) userid = authData.authData.user._id;
@@ -31,16 +34,28 @@ const AllProblemsPage = () => {
       } catch (error) {
         console.error("Error fetching problems:", error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
     fetchProblems();
   }, [authData.authData]);
 
+  const filterProblems = (problems) => {
+    return problems.filter((problem) => {
+      const difficultyMatch = difficultyFilter
+        ? problem.difficulty === difficultyFilter
+        : true;
+      const keywordMatch = keywordFilter
+        ? problem.title.toLowerCase().includes(keywordFilter.toLowerCase())
+        : true;
+      return difficultyMatch && keywordMatch;
+    });
+  };
+
   const indexOfLastProblem = currentPage * problemsPerPage;
   const indexOfFirstProblem = indexOfLastProblem - problemsPerPage;
-  const currentProblems = problems.slice(
+  const currentProblems = filterProblems(problems).slice(
     indexOfFirstProblem,
     indexOfLastProblem
   );
@@ -61,6 +76,25 @@ const AllProblemsPage = () => {
               <h2 className="text-3xl font-bold text-gray-800 mb-4">
                 All Problems
               </h2>
+              <div className="flex justify-between mb-4">
+                <select
+                  value={difficultyFilter}
+                  onChange={(e) => setDifficultyFilter(e.target.value)}
+                  className="p-2 bg-white rounded-lg shadow-md"
+                >
+                  <option value="">All Difficulties</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+                <input
+                  type="text"
+                  value={keywordFilter}
+                  onChange={(e) => setKeywordFilter(e.target.value)}
+                  placeholder="Search by keyword"
+                  className="p-2 bg-white rounded-lg shadow-md"
+                />
+              </div>
               {currentProblems.map((problem) => (
                 <div
                   key={problem._id}
@@ -120,7 +154,7 @@ const AllProblemsPage = () => {
               <div className="mt-8">
                 <ul className="flex justify-center">
                   {Array.from(
-                    { length: Math.ceil(problems.length / problemsPerPage) },
+                    { length: Math.ceil(filterProblems(problems).length / problemsPerPage) },
                     (_, i) => (
                       <li key={i}>
                         <button
@@ -143,7 +177,6 @@ const AllProblemsPage = () => {
               <h2 className="text-3xl font-bold text-gray-800 mb-4">
                 Technical Questions
               </h2>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 1
@@ -153,7 +186,6 @@ const AllProblemsPage = () => {
                   time complexity.
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 2
@@ -162,7 +194,6 @@ const AllProblemsPage = () => {
                   What are RESTful APIs and how do they work in web development?
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 3
@@ -172,7 +203,6 @@ const AllProblemsPage = () => {
                   How do you achieve it?
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 4
@@ -182,7 +212,6 @@ const AllProblemsPage = () => {
                   learning in machine learning.
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 5
@@ -191,7 +220,6 @@ const AllProblemsPage = () => {
                   How do you optimize the performance of a React application?
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 6
@@ -201,7 +229,6 @@ const AllProblemsPage = () => {
                   in machine learning?
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 7
@@ -211,7 +238,6 @@ const AllProblemsPage = () => {
                   example.
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 8
@@ -221,7 +247,6 @@ const AllProblemsPage = () => {
                   attacks in web applications?
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md mb-4">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 9
@@ -231,7 +256,6 @@ const AllProblemsPage = () => {
                   image recognition tasks.
                 </p>
               </div>
-
               <div className="bg-white rounded-lg p-6 shadow-md">
                 <h3 className="text-xl font-semibold text-yellow-800 mb-4">
                   Question 10

@@ -5,6 +5,58 @@ const Submission = require("../models/submission_model");
 
 
 //get admin dashboard data
+
+const calculateScore = async (userId) => {
+  try {
+    const submissions = await Submission.find({ userid: userId }).populate('questionid');
+    let score = 0;
+    let problemsSolved = 0;
+    const solvedQuestions = new Set();
+    const questionPoints = {
+      easy: 50,
+      medium: 100,
+      hard: 150
+    };
+    const deductionPoints = {
+      easy: -2,
+      medium: -5,
+      hard: -8
+    };
+
+    const questionDeductions = {};
+
+    submissions.forEach(submission => {
+      const { questionid: question, verdict } = submission;
+      const questionId = question._id.toString();
+
+      if (verdict === 'Pass') {
+        if (!solvedQuestions.has(questionId)) {
+         
+          score += questionPoints[question.difficulty];
+          problemsSolved += 1;
+          if (questionDeductions[questionId]) {
+            score += questionDeductions[questionId];
+            delete questionDeductions[questionId];
+          }
+
+          solvedQuestions.add(questionId);
+        }
+      } else {
+        if (!solvedQuestions.has(questionId)) {
+          if (!questionDeductions[questionId]) {
+            questionDeductions[questionId] = 0;
+          }
+          questionDeductions[questionId] += deductionPoints[question.difficulty];
+        }
+      }
+    });
+
+    return { score, problemsSolved };
+  } catch (error) {
+    console.error('Error calculating score:', error);
+    return { score: 0, problemsSolved: 0 };
+  }
+};
 const get_admin_data = async (req, res) => {
   try {
     const totalQuestions = await Question.countDocuments();
@@ -42,12 +94,33 @@ const get_admin_data = async (req, res) => {
       { $sort: { "_id": 1 } },
     ]);
 
-   
+    // Fetch all users
+    const users = await User.find();
 
-    const topRankers = await User.find()
-      .sort({ rank: 1 })
-      .limit(5)
-      .select("username rank");
+    // Calculate scores for all users
+    const userScores = await Promise.all(users.map(async (user) => {
+      const { score, problemsSolved } = await calculateScore(user._id); // Assuming calculateScore function exists
+      return {
+        username: user.username,
+        score: score,
+        problemsSolved: problemsSolved
+      };
+    }));
+
+    // Sort users by score in descending order
+    userScores.sort((a, b) => b.score - a.score);
+
+    // Get top 5 users based on score
+    const topUsers = userScores.slice(0, 5);
+
+    // Example structure for topUsers
+    // const topUsers = [
+    //   { username: 'User1', score: 100, problemsSolved: 50 },
+    //   { username: 'User2', score: 95, problemsSolved: 48 },
+    //   { username: 'User3', score: 90, problemsSolved: 45 },
+    //   { username: 'User4', score: 85, problemsSolved: 42 },
+    //   { username: 'User5', score: 80, problemsSolved: 40 },
+    // ];
 
     const topSolvedQuestions = await Submission.aggregate([
       {
@@ -85,7 +158,7 @@ const get_admin_data = async (req, res) => {
       totalSubmissions,
       questionsByDifficulty: questionsByDifficultyFormatted,
       submissionStatistics: submissionStatistics,
-      topRankers,
+      topUsers, // Include top users in the response
       topSolvedQuestions,
     });
   } catch (error) {
@@ -93,6 +166,7 @@ const get_admin_data = async (req, res) => {
     res.status(500).json({ error: "Server Error" });
   }
 };
+
 
 
 // get all submissions data for admin

@@ -38,7 +38,7 @@ const AdminDashboard = () => {
       try {
         const response = await axios.get(`${backendurl}/admin`);
         const data = response.data;
-
+         console.log(data)
         setTotalQuestions(data.totalQuestions);
         setTotalUsers(data.totalUsers);
         setTotalSubmissions(data.totalSubmissions);
@@ -65,7 +65,7 @@ const AdminDashboard = () => {
           ],
         });
 
-        setTopRankers(data.topRankers);
+        setTopRankers(data.topUsers);
         setTopSolvedQuestions(data.topSolvedQuestions);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -202,6 +202,13 @@ const AdminDashboard = () => {
           >
             Add Problem
           </Link>
+          <Link
+            to="/createassignment"
+            className="block py-2.5 px-4 rounded-md text-white"
+          >
+            Create Assignment
+          </Link>
+
         </nav>
       </div>
 
@@ -255,7 +262,7 @@ const AdminDashboard = () => {
                         Username
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Rank
+                       Score
                       </th>
                     </tr>
                   </thead>
@@ -266,7 +273,7 @@ const AdminDashboard = () => {
                           {ranker.username}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          Rank {ranker.rank}
+                           {ranker.score}
                         </td>
                       </tr>
                     ))}
