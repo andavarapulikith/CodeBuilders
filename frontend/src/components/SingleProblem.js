@@ -12,7 +12,28 @@ import SubmissionModal from "./SubmissionModal"; // Import the SubmissionModal c
 const SingleProblemPage = () => {
   const [language, setLanguage] = useState("python");
   const [problem, setProblem] = useState(null);
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState({
+    python: `# Python initial code\n\n`,
+    cpp: `// C++ initial code\n\n#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+
+  cout << "Hello World";
+
+  return 0;
+
+}`,
+    java: `
+  // Java initial code\n\n 
+  public class Main {
+  public static void main(String[] args) {
+
+    System.out.println("Hello World");
+
+  }
+}`
+  });
   const { id } = useParams();
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
@@ -33,7 +54,7 @@ const SingleProblemPage = () => {
   const runCode = () => {
     setLoading(true);
     axios
-      .post(`${backendurl}/coding/runproblem`, { code, language, input })
+      .post(`${backendurl}/coding/runproblem`, { code: code[language], language, input })
       .then((res) => {
         if (res.data.output !== "") {
           setOutput(res.data.output);
@@ -52,7 +73,7 @@ const SingleProblemPage = () => {
   };
 
   const onSubmit = () => {
-    if (!code) {
+    if (!code[language]) {
       setError("Code cannot be empty");
       return;
     }
@@ -62,7 +83,7 @@ const SingleProblemPage = () => {
       .post(`${backendurl}/coding/submit`, {
         questionId: id,
         userId,
-        code,
+        code: code[language],
         language,
       })
       .then((res) => {
@@ -328,8 +349,8 @@ const SingleProblemPage = () => {
                   height="70vh"
                   theme="vs-dark"
                   language={language}
-                  value={code}
-                  onChange={(newValue) => setCode(newValue)}
+                  value={code[language]}
+                  onChange={(newValue) => setCode({ ...code, [language]: newValue })}
                   className="bg-black text-white p-4 rounded-lg"
                 />
               </div>
