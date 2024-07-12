@@ -68,7 +68,7 @@ CodeBuilders is a comprehensive Online Judge (OJ) platform built using the MERN 
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/your-repo/codebuilders.git
+   git clone https://github.com/CodeBuilders/codebuilders.git
    cd codebuilders
    ```
 
@@ -78,7 +78,6 @@ CodeBuilders is a comprehensive Online Judge (OJ) platform built using the MERN 
    npm install
    cd backend  
    npm install
-   ..
    ```
 
 3. **Environment Variables:**
