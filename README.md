@@ -2,7 +2,7 @@
 
 ## Overview
 
-CodeBuilders is a comprehensive Online Judge (OJ) platform built using the MERN stack (MongoDB, Express, React, Node.js). The platform caters to both users and admins, providing distinct functionalities tailored to their roles.
+CodeBuilders is a comprehensive Online Judge (OJ) platform built using the MERN stack (MongoDB, Express, React, Node.js). The platform caters to both users and admin, providing distinct functionalities tailored to their roles.
 
 ## Features
 
