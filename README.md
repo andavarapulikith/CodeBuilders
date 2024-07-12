@@ -105,3 +105,25 @@ CodeBuilders is a comprehensive Online Judge (OJ) platform built using the MERN 
 - **Database**: MongoDB for data storage
 - **File Storage**: AWS S3 for storing large test case files
 - **Authentication**: JWT (JSON Web Tokens) for secure authentication
+
+
+## Deployment
+### Backend
+#### Create Docker Image:
+- Use AWS Elastic Container Registry (ECR) to create a Docker image of the backend.
+- Push the Docker image to your ECR repository.
+
+#### Deploy on EC2:
+- Set up an EC2 instance and assign an Elastic IP to it.
+- Pull the Docker image from ECR and run it on the EC2 instance.
+  
+#### Domain Configuration:
+- Link  domain to the Elastic IP to create a backend link.
+
+### Frontend
+#### Deploy on Vercel:
+- Use Vercel to deploy the frontend application.
+- Configured the custom domain to link to Vercel.
+
+## Access the Application:
+**The application can be accessed**: https://www.likith.online/.
