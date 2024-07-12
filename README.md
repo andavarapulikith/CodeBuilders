@@ -114,7 +114,7 @@ CodeBuilders is a comprehensive Online Judge (OJ) platform built using the MERN 
 ### Frontend
 #### Deploy on Vercel:
 - Use Vercel to deploy the frontend application.
-- Configured the custom domain to link to Vercel.
+- Configure the custom domain to link to Vercel.
 
 ## Access the Application:
 **The application can be accessed**: https://www.likith.online/.
