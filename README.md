@@ -44,7 +44,6 @@ CodeBuilders is a comprehensive Online Judge (OJ) platform built using the MERN 
 
 2. **User Management:**
    - View a list of all registered users.
-   - Manage user accounts as needed.
 
 3. **Problem Management:**
    - Create new problems with detailed descriptions, constraints, input/output formats, and sample test cases.
@@ -98,13 +97,6 @@ CodeBuilders is a comprehensive Online Judge (OJ) platform built using the MERN 
    npm start 
    ```
 
-### Technical Details
-#### Tech Stack
-- **Frontend**: React.js with Tailwind CSS for styling
-- **Backend**: Node.js and Express.js
-- **Database**: MongoDB for data storage
-- **File Storage**: AWS S3 for storing large test case files
-- **Authentication**: JWT (JSON Web Tokens) for secure authentication
 
 
 ## Deployment
