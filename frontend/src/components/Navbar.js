@@ -35,7 +35,7 @@ const Navbar = () => {
           </li>
           
           <li>
-            <Link to="/ide" className="hover:text-yellow-300 font-semibold">
+            <Link to={isLoggedIn ? '/ide' : '/login'} className="hover:text-yellow-300 font-semibold">
               Online IDE
             </Link>
           </li>
