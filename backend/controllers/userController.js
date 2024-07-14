@@ -24,6 +24,8 @@ const calculateScore = async (userId) => {
   
       submissions.forEach(submission => {
         const { questionid: question, verdict } = submission;
+        if (!question) 
+          return;
         const questionId = question._id.toString();
   
         if (verdict === 'Pass') {
@@ -95,6 +97,7 @@ const get_submissions=async (req,res)=>{
                 }
                 countedQuestionIds.set(question._id.toString(), true);
             }
+            if(question){
                 submissionsData.push({
                     date: submission.createdAt,
                     code:submission.code,
@@ -103,6 +106,7 @@ const get_submissions=async (req,res)=>{
                     language: submission.language,
                     verdict: submission.verdict
                 });
+              }
 
                
             

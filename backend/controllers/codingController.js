@@ -420,6 +420,7 @@ const calculateScore = async (userId) => {
 
     submissions.forEach(submission => {
       const { questionid: question, verdict } = submission;
+      if (!question) return;
       const questionId = question._id.toString();
 
       if (verdict === 'Pass') {

@@ -54,6 +54,7 @@ const UserProfile = () => {
           `${backendurl}/user/submissions/${userid}`
         );
         const submissionsData = response2.data;
+        console.log(submissionsData)
 
         console.log("Submissions Data:", submissionsData); // Log submissions data
         setSubmissions(submissionsData.submissions);
@@ -367,7 +368,7 @@ const UserProfile = () => {
                     <td className="py-2">
                       {new Date(submission.date).toLocaleDateString()}
                     </td>
-                    <td className="py-2">{submission.title}</td>
+                    <td className="py-2">{submission.problem}</td>
                     <td className="py-2">{submission.language}</td>
                     <td
                       className={`py-2 ${
