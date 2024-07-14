@@ -217,7 +217,7 @@ function executeCode(command, inputFilePath, tempCodeFilePath, res) {
 // submit problem
 const submit_post = async (req, res) => {
   const { questionId, userId, language } = req.body;
-  
+  console.log(language)
   try {
     const question = await Question.findById(questionId);
 
@@ -230,6 +230,7 @@ const submit_post = async (req, res) => {
     await question.save();
 
     const code = req.body.code; 
+    console.log(code)
     const inputUrl = await getObjectURL(inputFileKey);
     const inputResponse = await fetch(inputUrl);
     if (!inputResponse.ok) {

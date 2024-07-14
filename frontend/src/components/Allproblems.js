@@ -229,42 +229,10 @@ const AllProblemsPage = () => {
                   in machine learning?
                 </p>
               </div>
-              <div className="bg-white rounded-lg p-6 shadow-md mb-4">
-                <h3 className="text-xl font-semibold text-yellow-800 mb-4">
-                  Question 7
-                </h3>
-                <p className="text-gray-600">
-                  Explain the concept of a closure in JavaScript. Provide an
-                  example.
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-6 shadow-md mb-4">
-                <h3 className="text-xl font-semibold text-yellow-800 mb-4">
-                  Question 8
-                </h3>
-                <p className="text-gray-600">
-                  What are some common techniques for preventing SQL injection
-                  attacks in web applications?
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-6 shadow-md mb-4">
-                <h3 className="text-xl font-semibold text-yellow-800 mb-4">
-                  Question 9
-                </h3>
-                <p className="text-gray-600">
-                  Describe how convolutional neural networks (CNNs) are used in
-                  image recognition tasks.
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-6 shadow-md">
-                <h3 className="text-xl font-semibold text-yellow-800 mb-4">
-                  Question 10
-                </h3>
-                <p className="text-gray-600">
-                  What is the purpose of state management libraries like Redux
-                  in web development?
-                </p>
-              </div>
+            
+             
+             
+           
             </div>
           </div>
         )}

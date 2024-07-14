@@ -56,12 +56,14 @@ int main() {
     axios
       .post(`${backendurl}/coding/runproblem`, { code: code[language], language, input })
       .then((res) => {
+        
         if (res.data.output !== "") {
           setOutput(res.data.output);
           setError("");
         }
         if (res.data.error !== "") {
           setError(res.data.error);
+          setOutput("");
         }
       })
       .catch((err) => {
@@ -87,12 +89,15 @@ int main() {
         language,
       })
       .then((res) => {
+        console.log(res.data)
         if (res.data.error) {
           console.log(res.data.error);
           setError(res.data.error);
+          setSubmittedOutput("");
         } else {
           console.log(res.data);
           setSubmittedOutput(res.data.results.verdict);
+          setError("");
           if (res.data.results.verdict === "Fail") {
             toast.error("Failed in some test cases");
           } else {
@@ -101,7 +106,9 @@ int main() {
         }
       })
       .catch((err) => {
-        console.log(err);
+
+        console.log(err.response.data);
+        setError(err.response.data.error);
       })
       .finally(() => {
         setSubmitted(false);
