@@ -108,6 +108,12 @@ const AllQuestionsPage = () => {
           >
             Add Problem
           </Link>
+          <Link
+            to="/createassignment"
+            className="block py-2.5 px-4 rounded-md text-white"
+          >
+            Create Assignment
+          </Link>
         </nav>
       </div>
 
@@ -147,6 +153,12 @@ const AllQuestionsPage = () => {
                   </p>
                 </div>
                 <div className="flex justify-end space-x-4">
+                <Link
+                      to={`/updateproblem/${question._id}`}
+                      className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                    >
+                      Update
+                    </Link>
                   <button
                     className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
                     onClick={() => {

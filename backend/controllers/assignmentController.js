@@ -20,7 +20,7 @@ const CreateAssignment = async (req, res) => {
 
 const getAllAssignments = async (req, res) => {
   try {
-    const assignments = await Assignment.find().populate("problems", "title"); // Populating problem titles
+    const assignments = await Assignment.find().populate("problems", "title"); 
     res.json(assignments);
   } catch (err) {
     console.error(err.message);

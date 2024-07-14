@@ -4,8 +4,6 @@ const User = require("../models/user_model");
 const Submission = require("../models/submission_model");
 
 
-//get admin dashboard data
-
 const calculateScore = async (userId) => {
   try {
     const submissions = await Submission.find({ userid: userId }).populate('questionid');

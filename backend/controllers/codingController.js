@@ -231,13 +231,10 @@ const submit_post = async (req, res) => {
 
     const code = req.body.code; 
     const inputUrl = await getObjectURL(inputFileKey);
-
     const inputResponse = await fetch(inputUrl);
-
     if (!inputResponse.ok) {
       return res.status(500).json({ error: "Failed to fetch input file from S3" });
     }
-
     const inputText = await inputResponse.text();
 
     const outputUrl = await getObjectURL(outputFileKey);
@@ -495,6 +492,74 @@ const user_submissions_get=async (req,res)=>{
     res.status(500).json({ error: 'Failed to fetch user submissions' });
   }
 }
+const updateProblem_post = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      difficulty,
+      constraints,
+      inputFormat,
+      outputFormat,
+      sampleTestCases,
+      topicTags,
+      companyTags,
+      userid
+    } = req.body;
+    const { inputFile, outputFile } = req.files;
+
+    let inputFileUrl = '';
+    let outputFileUrl = '';
+    if (inputFile && inputFile.length > 0) {
+      const inputFileData = inputFile[0];
+      const inputKey = `uploads/user-uploads/${Date.now()}_${inputFileData.originalname}`;
+      const inputParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: inputKey,
+        Body: inputFileData.buffer,
+        ContentType: inputFileData.mimetype,
+      };
+      await s3Client.send(new PutObjectCommand(inputParams));
+      inputFileUrl = inputKey;
+    }
+
+    if (outputFile && outputFile.length > 0) {
+      const outputFileData = outputFile[0];
+      const outputKey = `uploads/user-uploads/${Date.now()}_${outputFileData.originalname}`;
+      const outputParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: outputKey,
+        Body: outputFileData.buffer,
+        ContentType: outputFileData.mimetype,
+      };
+      await s3Client.send(new PutObjectCommand(outputParams));
+      outputFileUrl = outputKey;
+    }
+
+    const updatedData = {
+      title,
+      description,
+      difficulty,
+      constraints,
+      inputFormat,
+      outputFormat,
+      sampleTestCases,
+      topicTags,
+      companyTags,
+    };
+
+    if (inputFileUrl) updatedData.inputFile = inputFileUrl;
+    if (outputFileUrl) updatedData.outputFile = outputFileUrl;
+
+    const updatedQuestion = await Question.findByIdAndUpdate(id, updatedData, { new: true });
+
+    res.status(200).json({ message: 'Problem updated successfully', question: updatedQuestion });
+  } catch (error) {
+    console.error('Error updating problem:', error);
+    res.status(500).json({ error: 'An error occurred while updating the problem' });
+  }
+};
 
 module.exports = {
   allproblems_get,
@@ -502,5 +567,5 @@ module.exports = {
   addproblem_post,
   runproblem_post,
   submit_post,
-  get_scores,user_submissions_get
+  get_scores,user_submissions_get,updateProblem_post
 };

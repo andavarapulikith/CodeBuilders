@@ -19,6 +19,7 @@ import ContestPage from './components/ContestPage';
 import CreateAssignmentPage from './components/CreateAssignment';
 import AllAssignmentsPage from './components/Allassignments';
 import SingleAssignmentPage from './components/SingleAssignment';
+import UpdateProblemPage from './components/UpdateProblem';
 function App() {
   const router=createBrowserRouter(
     [{
@@ -77,6 +78,9 @@ function App() {
     },{
       path:'/assignments/:id',
       element:<SingleAssignmentPage></SingleAssignmentPage>
+    },{
+      path:'/updateproblem/:id',
+      element:<UpdateProblemPage></UpdateProblemPage>
     }
 
     ]

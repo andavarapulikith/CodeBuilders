@@ -91,6 +91,12 @@ const UsersPage = () => {
           >
             Add Problem
           </Link>
+          <Link
+            to="/createassignment"
+            className="block py-2.5 px-4 rounded-md text-white"
+          >
+            Create Assignment
+          </Link>
         </nav>
       </div>
       {loading ? (

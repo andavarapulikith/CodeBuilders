@@ -2,18 +2,9 @@ const router = require("express").Router();
 const verifyToken = require("../middleware/auth");
 const codingController = require("../controllers/codingController");
 const multer = require("multer");
-const {
-  S3Client,
-  GetObjectCommand,
-  PutObjectCommand,
-} = require("@aws-sdk/client-s3");
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-const multerS3 = require("multer-s3");
+const {S3Client} = require("@aws-sdk/client-s3");
 const dotenv = require("dotenv");
 dotenv.config();
-
-
-
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
@@ -22,7 +13,6 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
-
 
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -36,11 +26,12 @@ const upload = multer({
   },
 });
 
-router.get(
-  "/allproblems/:userid",codingController.allproblems_get
-);
+router.get("/allproblems/:userid", codingController.allproblems_get);
 router.get("/getproblem/:id", codingController.singleproblem_get);
-router.get("/usersubmissions/:questionid/:userid", codingController.user_submissions_get);
+router.get(
+  "/usersubmissions/:questionid/:userid",
+  codingController.user_submissions_get
+);
 router.post(
   "/addproblem",
   verifyToken,
@@ -50,6 +41,16 @@ router.post(
   ]),
   codingController.addproblem_post
 );
+router.post(
+  '/updateproblem/:id',
+  verifyToken,
+  upload.fields([
+    { name: 'inputFile', maxCount: 1 },
+    { name: 'outputFile', maxCount: 1 },
+  ]),
+  codingController.updateProblem_post
+);
+
 router.post("/runproblem", verifyToken, codingController.runproblem_post);
 router.post("/submit", verifyToken, codingController.submit_post);
 router.get("/getscores", codingController.get_scores);
