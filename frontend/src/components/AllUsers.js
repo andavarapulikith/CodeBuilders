@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { backendurl } from "../backendurl";
+
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -11,14 +12,12 @@ const UsersPage = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage]);
+  }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${backendurl}/admin/users?page=${currentPage}&limit=${usersPerPage}`
-      );
+      const response = await axios.get(`${backendurl}/admin/users`);
       if (response.data.success) {
         setUsers(response.data.data);
       } else {
@@ -34,9 +33,13 @@ const UsersPage = () => {
     setCurrentPage(page);
   };
 
-  // Pagination logic
-  const totalUsers = users.length; // Assuming you get total users from backend
-  const totalPages = Math.ceil(totalUsers / usersPerPage);
+  // Calculate the displayed users based on the current page and users per page
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(users.length / usersPerPage);
   const pageNumbers = [];
   for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
@@ -122,11 +125,10 @@ const UsersPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contact Number
                 </th>
-                
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
+              {currentUsers.map((user) => (
                 <tr key={user._id}>
                   <td className="px-6 py-4 whitespace-nowrap">{user._id}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -136,7 +138,6 @@ const UsersPage = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {user.contact_number}
                   </td>
-                 
                 </tr>
               ))}
             </tbody>
